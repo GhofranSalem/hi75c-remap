@@ -29,7 +29,7 @@ The keyboard (Sinowealth controller, USB `258a:010c`) is configured over HID fea
 
 | Command | What it does |
 |---|---|
-| `06 03 <chunk>` | Write keymap: 4 × 512 bytes (Default, FN1, FN2, Tap), 4 bytes per key |
+| `06 03 <chunk>` | Write keymap: 4 × 512 bytes (Default, FN1, FN2, Tap), 4 bytes per key. The Hi75C Pro ignores the Tap layer, so the page doesn't show it |
 | `06 84` / `06 04` | Read / write the lighting config (effect, brightness, speed, color) |
 | `06 06` | Self-define per-key colors |
 | `06 08` | Direct per-key colors (used for music sync) |

@@ -165,7 +165,7 @@ function renderTabs(){
   document.getElementById("modeTabs").style.display="none";
   const le=document.getElementById("layerTabs"); le.innerHTML="";
   LAYERS.forEach((n,i)=>{ const t=document.createElement("button"); t.type="button"; t.setAttribute("role","tab");
-    if(i===3){ t.className="tab"; t.disabled=true; t.style.opacity=".45"; t.style.cursor="not-allowed"; t.innerHTML=esc(n)+'<span class="soon">'+T("(مش شغالة)")+'</span>'; t.title=T("اتجربت ومش بتعمل أي حاجة على الـ Hi75C Pro"); le.appendChild(t); return; }
+    if(i===3) return; // Tap layer: the Hi75C Pro firmware ignores it, so it is not shown (still written as zeros, like LEOBOG ONE)
     t.className="tab"+(i===layer?" active":""); t.textContent=n; t.onclick=()=>{layer=i; refresh();}; le.appendChild(t); });
   const hints=[T("اللي الزراير بتعمله لما تدوسها عادي."),T("اللي الزراير بتعمله وانت ماسك Fn. الزرار اللي عليه «·» مش بيعمل حاجة في الطبقة دي."),T("اللي الزراير بتعمله وانت ماسك زرار FN2. عشان تستخدمها خلي زرار في Default يبقى FN2 (من Special)."),""];
   document.getElementById("layerHint").textContent=hints[layer];
