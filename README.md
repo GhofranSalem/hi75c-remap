@@ -11,13 +11,14 @@ Remap keys and control the lighting on the **LEOBOG Hi75C Pro** straight from th
 - Lighting: the 14 built-in effects with brightness, speed and color, plus Self-define (paint each key)
 - Music sync: the keyboard reacts to a browser tab, your screen audio or the microphone
 - Profiles you can export and import as text
-- Arabic and English interface
+- Works over the USB cable or the 2.4G receiver (Self-define colors and music sync need the cable)
+- English and Arabic interface
 
 ## How to use
 
-1. Plug the keyboard in with the USB cable (the switch on the back set to wired).
+1. Plug the keyboard in with the USB cable, or plug in its 2.4G receiver and set the switch on the back to 2.4G.
 2. Open the page in **Chrome or Edge** on a desktop computer. Safari and Firefox don't support WebHID.
-3. Click **Connect keyboard** and choose **Gaming Keyboard**.
+3. Click **Connect keyboard** and choose **Gaming Keyboard** (cable) or the 2.4G receiver.
 4. Change keys, then click **Write to keyboard**. Settings are stored on the keyboard itself.
 
 If anything goes wrong, hold **Fn + Esc** for 3 seconds to restore factory settings, or use the official LEOBOG app.
@@ -36,9 +37,11 @@ The keyboard (Sinowealth controller, USB `258a:010c`) is configured over HID fea
 
 The direct-color format matches OpenRGB's Sinowealth 010C controller.
 
+Over the 2.4G receiver (USB `3554:fa09`) the same payloads travel as 20-byte output reports with ID `0x13`: `[13][cmd][packets][seq][chunk<<4 | len][14 bytes][checksum]`, and the receiver echoes every packet as its acknowledgement. Keymap is `cmd 01`, config read `cmd 44`, config write `cmd 04`.
+
 ## Safety and privacy
 
-- The page only asks for the Hi75C Pro (`258a:010c`) and checks the model ID before it allows any write.
+- The page only asks for the Hi75C Pro (`258a:010c`) or its 2.4G receiver (`3554:fa09`). Over the cable it checks the model ID before it allows any write; over 2.4G the model can't be read, so the write dialog says so.
 - Only key codes the app knows can be written. Imported profiles are filtered against that list.
 - Everything runs locally in your browser. No server, no analytics, no external requests; fonts are bundled. A strict Content-Security-Policy blocks everything else.
 - Audio for music sync is analysed in the page and never recorded or sent anywhere.

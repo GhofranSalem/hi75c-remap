@@ -1,5 +1,5 @@
 
-const I18N={"ده مش Hi75C Pro — الكتابة اتقفلت عشان الأمان":"This is not a Hi75C Pro — writing is disabled for safety","تخصيص الزراير": "Key Remapper", "توصيل الكيبورد": "Connect keyboard", "اكتب على الكيبورد": "Write to keyboard", "وضع الاختبار": "Test mode", "رجّع الزرار المختار للأصل": "Reset selected key", "رجّع الطبقة دي للأصل": "Reset this layer", "رجّع الكي ماب كله للأصل": "Reset whole keymap", "لو أي حاجة باظت: دوس Fn+Esc مع بعض 3 ثواني عشان الكيبورد يرجع لإعدادات المصنع، أو استخدم برنامج LEOBOG.": "If anything goes wrong: hold Fn+Esc for 3 seconds to restore factory settings, or use the LEOBOG app.", "وضع الاختبار شغال: دوس على زراير الكيبورد وهتنوّر هنا.": "Test mode is on: press keys on the keyboard and they light up here.", "الإضاءة": "Lighting", "في Self-define: اختار لون، وبعدين دوس على الزراير في الكيبورد اللي فوق عشان تلوّنها.": "Self-define: pick a color, then click keys on the keyboard above to paint them.", "ابدأ التلوين": "Start painting", "وقّف التلوين": "Stop painting", "لوّن الكل": "Fill all", "امسح الكل": "Clear all", "اقرا الإضاءة من الكيبورد": "Read lighting from keyboard", "طبّق الإضاءة": "Apply lighting", "مع الموسيقى": "Music sync", "الصوت": "Audio", "صوت تاب أو الشاشة": "Tab or screen audio", "المايك": "Microphone", "الشكل": "Style", "Equalizer (أعمدة)": "Equalizer (bars)", "نبض (الكيبورد كله)": "Pulse (whole keyboard)", "موجة من النص": "Wave from center", "مطر": "Rain", "ألوان السبكتروم": "Spectrum colors", "الحساسية": "Sensitivity", "ابدأ": "Start", "وقّف": "Stop", "اختبار: Esc أحمر": "Test: Esc red", "الإضاءة دي شغالة طول ما الصفحة مفتوحة. لما توقفها، الكيبورد بيرجع لإضاءته العادية لوحده بعد ثانية.": "This lighting runs while the page is open. When you stop it, the keyboard returns to its own effect after a second.", "التغييرات": "Changes", "وصّل الكيبورد بالكابل واضغط «توصيل الكيبورد»، واختار Gaming Keyboard.": "Connect the keyboard by cable, click “Connect keyboard” and choose Gaming Keyboard.", "مسح": "Clear", "نسخ": "Copy", "تمام": "OK", "إلغاء": "Cancel", "اختار الوظيفة الجديدة": "Choose the new function", "اضغط على أي زرار في الكيبورد عشان تغيّره.": "Click any key on the keyboard to change it.", "البروفايلات": "Profiles", "بروفايل جديد": "New profile", "التغييرات بتتحفظ أوتوماتيك في المتصفح ده. الكيبورد مش بيتغيّر غير لما تدوس «اكتب على الكيبورد».": "Changes are saved automatically in this browser. The keyboard only changes when you click “Write to keyboard”.", "اختار زرار من الكيبورد الأول": "Select a key on the keyboard first", "(مش شغالة)": "(not working)", "اتجربت ومش بتعمل أي حاجة على الـ Hi75C Pro": "Tested — it does nothing on the Hi75C Pro", "اللي الزراير بتعمله لما تدوسها عادي.": "What keys do when pressed normally.", "اللي الزراير بتعمله وانت ماسك Fn. الزرار اللي عليه «·» مش بيعمل حاجة في الطبقة دي.": "What keys do while holding Fn. Keys marked “·” do nothing on this layer.", "اللي الزراير بتعمله وانت ماسك زرار FN2. عشان تستخدمها خلي زرار في Default يبقى FN2 (من Special).": "What keys do while holding an FN2 key. To use it, set a key in Default to FN2 (under Special).", "مفيش تغييرات لسه — كل الزراير على الإعدادات الأصلية.": "No changes yet — all keys are at factory settings.", "اسم البروفايل الجديد": "New profile name", "انسخ النص ده واحفظه.": "Copy this text and keep it.", "الصق البروفايل هنا.": "Paste the profile here.", "اتعمل Import": "Imported", "ده مش بروفايل صالح": "That is not a valid profile", "رجعت للأصل هنا — دوس «اكتب على الكيبورد» عشان يتطبق": "Reset here — click “Write to keyboard” to apply", "اتنسخ": "Copied", "النسخ اترفض — انسخ يدوي": "Copy was blocked — copy it manually", "إيقاف الاختبار": "Stop test", "افتح الصفحة في Chrome أو Edge": "Open this page in Chrome or Edge", "التوصيل فشل — بص في الـ Log": "Connection failed — check the Log", "وصّل الكيبورد الأول": "Connect the keyboard first", "قناة الإعدادات (Feature 6) موجودة — الكتابة متاحة.": "Config channel (Feature 6) found — writing is available.", "قناة الإعدادات مش ظاهرة.": "Config channel not found.", "كتابة الكي ماب على الكيبورد": "Write keymap to keyboard", "بيكتب…": "Writing…", "اتكتب على الكيبورد ✓ — جرّب الزراير": "Written to keyboard ✓ — try the keys", "الكتابة فشلت — بص في الـ Log": "Write failed — check the Log", "اتقرت الإعدادات من الكيبورد ✓": "Settings read from keyboard ✓", "القراية فشلت — بص في الـ Log": "Read failed — check the Log", "الإضاءة اتطبقت ✓": "Lighting applied ✓", "الإضاءة فشلت — بص في الـ Log": "Lighting failed — check the Log", "بص على الكيبورد 3 ثواني: Esc لوحده المفروض يبقى أحمر": "Watch the keyboard for 3 s: only Esc should turn red", "مفيش صوت — علّم على Share audio في الشباك": "No audio — tick “Share audio” in the dialog", "مقدرتش أوصل للصوت — بص في الـ Log": "Couldn't access audio — check the Log"};
+const I18N={"الإضاءة مع الموسيقى محتاجة الكابل":"Music sync needs the USB cable","ده مش Hi75C Pro — الكتابة اتقفلت عشان الأمان":"This is not a Hi75C Pro — writing is disabled for safety","تخصيص الزراير": "Key Remapper", "توصيل الكيبورد": "Connect keyboard", "اكتب على الكيبورد": "Write to keyboard", "وضع الاختبار": "Test mode", "رجّع الزرار المختار للأصل": "Reset selected key", "رجّع الطبقة دي للأصل": "Reset this layer", "رجّع الكي ماب كله للأصل": "Reset whole keymap", "لو أي حاجة باظت: دوس Fn+Esc مع بعض 3 ثواني عشان الكيبورد يرجع لإعدادات المصنع، أو استخدم برنامج LEOBOG.": "If anything goes wrong: hold Fn+Esc for 3 seconds to restore factory settings, or use the LEOBOG app.", "وضع الاختبار شغال: دوس على زراير الكيبورد وهتنوّر هنا.": "Test mode is on: press keys on the keyboard and they light up here.", "الإضاءة": "Lighting", "في Self-define: اختار لون، وبعدين دوس على الزراير في الكيبورد اللي فوق عشان تلوّنها.": "Self-define: pick a color, then click keys on the keyboard above to paint them.", "ابدأ التلوين": "Start painting", "وقّف التلوين": "Stop painting", "لوّن الكل": "Fill all", "امسح الكل": "Clear all", "اقرا الإضاءة من الكيبورد": "Read lighting from keyboard", "طبّق الإضاءة": "Apply lighting", "مع الموسيقى": "Music sync", "الصوت": "Audio", "صوت تاب أو الشاشة": "Tab or screen audio", "المايك": "Microphone", "الشكل": "Style", "Equalizer (أعمدة)": "Equalizer (bars)", "نبض (الكيبورد كله)": "Pulse (whole keyboard)", "موجة من النص": "Wave from center", "مطر": "Rain", "ألوان السبكتروم": "Spectrum colors", "الحساسية": "Sensitivity", "ابدأ": "Start", "وقّف": "Stop", "اختبار: Esc أحمر": "Test: Esc red", "الإضاءة دي شغالة طول ما الصفحة مفتوحة. لما توقفها، الكيبورد بيرجع لإضاءته العادية لوحده بعد ثانية.": "This lighting runs while the page is open. When you stop it, the keyboard returns to its own effect after a second.", "التغييرات": "Changes", "وصّل الكيبورد بالكابل واضغط «توصيل الكيبورد»، واختار Gaming Keyboard.": "Connect the keyboard by cable, click “Connect keyboard” and choose Gaming Keyboard.", "مسح": "Clear", "نسخ": "Copy", "تمام": "OK", "إلغاء": "Cancel", "اختار الوظيفة الجديدة": "Choose the new function", "اضغط على أي زرار في الكيبورد عشان تغيّره.": "Click any key on the keyboard to change it.", "البروفايلات": "Profiles", "بروفايل جديد": "New profile", "التغييرات بتتحفظ أوتوماتيك في المتصفح ده. الكيبورد مش بيتغيّر غير لما تدوس «اكتب على الكيبورد».": "Changes are saved automatically in this browser. The keyboard only changes when you click “Write to keyboard”.", "اختار زرار من الكيبورد الأول": "Select a key on the keyboard first", "(مش شغالة)": "(not working)", "اتجربت ومش بتعمل أي حاجة على الـ Hi75C Pro": "Tested — it does nothing on the Hi75C Pro", "اللي الزراير بتعمله لما تدوسها عادي.": "What keys do when pressed normally.", "اللي الزراير بتعمله وانت ماسك Fn. الزرار اللي عليه «·» مش بيعمل حاجة في الطبقة دي.": "What keys do while holding Fn. Keys marked “·” do nothing on this layer.", "اللي الزراير بتعمله وانت ماسك زرار FN2. عشان تستخدمها خلي زرار في Default يبقى FN2 (من Special).": "What keys do while holding an FN2 key. To use it, set a key in Default to FN2 (under Special).", "مفيش تغييرات لسه — كل الزراير على الإعدادات الأصلية.": "No changes yet — all keys are at factory settings.", "اسم البروفايل الجديد": "New profile name", "انسخ النص ده واحفظه.": "Copy this text and keep it.", "الصق البروفايل هنا.": "Paste the profile here.", "اتعمل Import": "Imported", "ده مش بروفايل صالح": "That is not a valid profile", "رجعت للأصل هنا — دوس «اكتب على الكيبورد» عشان يتطبق": "Reset here — click “Write to keyboard” to apply", "اتنسخ": "Copied", "النسخ اترفض — انسخ يدوي": "Copy was blocked — copy it manually", "إيقاف الاختبار": "Stop test", "افتح الصفحة في Chrome أو Edge": "Open this page in Chrome or Edge", "التوصيل فشل — بص في الـ Log": "Connection failed — check the Log", "وصّل الكيبورد الأول": "Connect the keyboard first", "قناة الإعدادات (Feature 6) موجودة — الكتابة متاحة.": "Config channel (Feature 6) found — writing is available.", "قناة الإعدادات مش ظاهرة.": "Config channel not found.", "كتابة الكي ماب على الكيبورد": "Write keymap to keyboard", "بيكتب…": "Writing…", "اتكتب على الكيبورد ✓ — جرّب الزراير": "Written to keyboard ✓ — try the keys", "الكتابة فشلت — بص في الـ Log": "Write failed — check the Log", "اتقرت الإعدادات من الكيبورد ✓": "Settings read from keyboard ✓", "القراية فشلت — بص في الـ Log": "Read failed — check the Log", "الإضاءة اتطبقت ✓": "Lighting applied ✓", "الإضاءة فشلت — بص في الـ Log": "Lighting failed — check the Log", "بص على الكيبورد 3 ثواني: Esc لوحده المفروض يبقى أحمر": "Watch the keyboard for 3 s: only Esc should turn red", "مفيش صوت — علّم على Share audio في الشباك": "No audio — tick “Share audio” in the dialog", "مقدرتش أوصل للصوت — بص في الـ Log": "Couldn't access audio — check the Log"};
 let LANG=(()=>{ try{ return localStorage.getItem("hi75c-lang")||"en"; }catch(e){ return "en"; } })();
 function T(s){ return LANG==="en"?(I18N[s]||s):s; }
 function applyStatic(){
@@ -235,17 +235,19 @@ let devices=[], cfgDev=null;
 document.getElementById("btnConnect").onclick=async()=>{
   if(!("hid" in navigator)){ toast(T("افتح الصفحة في Chrome أو Edge")); return; }
   try{
-    const picked=await navigator.hid.requestDevice({filters:[{vendorId:0x258a,productId:0x010c}]});
+    const picked=await navigator.hid.requestDevice({filters:[{vendorId:0x258a,productId:0x010c},{vendorId:0x3554,productId:0xfa09}]});
     if(!picked.length) return;
     const all=await navigator.hid.getDevices(), p=picked[0];
     devices=all.filter(d=>d.vendorId===p.vendorId&&d.productId===p.productId);
-    cfgDev=null;
+    cfgDev=null; wireless=p.vendorId===0x3554;
     for(const d of devices){
       if(!d.opened){ try{ await d.open(); }catch(e){ logLine("open failed: "+e.message); } }
-      if(d.collections.some(c=>(c.featureReports||[]).some(r=>r.reportId===6))) cfgDev=d;
-      d.oninputreport=ev=>{ if(ev.reportId===6) logLine(`IN id=6 ${[...new Uint8Array(ev.data.buffer)].map(b=>h2(b)).join(" ")}`); };
+      if(!wireless && d.collections.some(c=>(c.featureReports||[]).some(r=>r.reportId===6))) cfgDev=d;
+      if(wireless && d.collections.some(c=>(c.outputReports||[]).some(r=>r.reportId===0x13))) cfgDev=d;
+      d.oninputreport=ev=>{ if(ev.reportId===0x13){ onDongleReport(ev); return; } if(ev.reportId===6) logLine(`IN id=6 ${[...new Uint8Array(ev.data.buffer)].map(b=>h2(b)).join(" ")}`); };
     }
-    if(cfgDev){ const model=await identify(cfgDev).catch(e=>{ logLine("identify failed: "+e.message); return -1; });
+    if(cfgDev&&wireless) logLine("2.4G receiver connected (3554:fa09). Model check isn't available over 2.4G.");
+    if(cfgDev&&!wireless){ const model=await identify(cfgDev).catch(e=>{ logLine("identify failed: "+e.message); return -1; });
       logLine("model id: "+(model<0?"unknown":"0x"+h2(model)));
       if(model>=0 && model!==0xA3){ cfgDev=null; toast(T("ده مش Hi75C Pro — الكتابة اتقفلت عشان الأمان")); logLine("Not a Hi75C Pro (expected 0xa3). Writing disabled."); } }
     setConnected(true,p); renderDevice();
@@ -261,11 +263,46 @@ async function identify(d){
   if(b[0]===0x82){ const t=new Uint8Array(b.length+1); t[0]=6; t.set(b,1); b=t; }
   return (b[0]===0x06&&b[1]===0x82&&b.length>13)?b[13]:-1;
 }
+/* ---------- 2.4G receiver (3554:fa09) ----------
+   Decoded from capture 07. Output report 0x13, 20 bytes:
+     [13][cmd][packets][seq][chunk<<4 | len][14 data bytes][sum of bytes 0..18]
+   The receiver echoes each packet on input report 0x13 (used as the ack).
+   Same payloads as wired, split into 14-byte pieces:
+     cmd 01 = keymap chunk (512 B, 37 packets)   cmd 44 = read config (reply: 10 packets, 128 B)
+     cmd 04 = write config (128 B = wired cfg[8..135]) */
+let wireless=false, rxWaiters=[];
+function onDongleReport(ev){ const b=new Uint8Array(ev.data.buffer,ev.data.byteOffset,ev.data.byteLength);
+  const pkt=new Uint8Array(20); pkt[0]=0x13; pkt.set(b.slice(0,19),1); rxWaiters.slice().forEach(w=>w(pkt)); }
+function wlPacket(cmd,count,seq,lenByte,data){ const p=new Uint8Array(20); p[0]=0x13; p[1]=cmd; p[2]=count; p[3]=seq; p[4]=lenByte;
+  if(data) p.set(data.slice(0,14),5); let sum=0; for(let i=0;i<19;i++) sum+=p[i]; p[19]=sum&255; return p; }
+function wlWait(match,ms){ return new Promise(res=>{ const w=pkt=>{ if(match(pkt)){ done(true); } }; const done=v=>{ clearTimeout(t); rxWaiters=rxWaiters.filter(x=>x!==w); res(v); }; const t=setTimeout(()=>done(false),ms); rxWaiters.push(w); }); }
+async function wlSendAck(p){
+  for(let a=0;a<4;a++){ const ack=wlWait(r=>r[1]===p[1]&&r[3]===p[3]&&r[19]===p[19],400); await cfgDev.sendReport(0x13,p.slice(1)); if(await ack) return; }
+  throw new Error(`no ack from receiver (cmd ${h2(p[1])} packet ${p[3]})`);
+}
+async function wlWriteBlock(cmd,chunk,bytes){
+  const n=Math.ceil(bytes.length/14);
+  for(let i=0;i<n;i++){ const part=bytes.slice(i*14,i*14+14); await wlSendAck(wlPacket(cmd,n,i,(chunk<<4)|part.length,part)); }
+}
+async function wlReadConfig(){
+  for(let a=0;a<6;a++){
+    const got={}; let total=10;
+    const w=r=>{ if(r[1]===0x44&&r[2]>0){ total=r[2]; got[r[3]]=r.slice(5,5+(r[4]&15)); } }; rxWaiters.push(w);
+    await cfgDev.sendReport(0x13,wlPacket(0x44,1,0,0,null).slice(1));
+    for(let t=0;t<30&&Object.keys(got).length<total;t++) await sleep(20);
+    rxWaiters=rxWaiters.filter(x=>x!==w);
+    if(Object.keys(got).length>=total){ const cfg=new Uint8Array(136); cfg.set([0x06,0x84,0,0,0x01,0,0x80,0x00]); let o=8;
+      for(let i=0;i<total;i++){ cfg.set(got[i].slice(0,136-o),o); o+=got[i].length; } return cfg; }
+    logLine(`config read incomplete (${Object.keys(got).length}/${total}), retrying`);
+  }
+  throw new Error("receiver didn't return the full config");
+}
+
 // Keymap/lighting writes get the HID channel to themselves (music frames pause).
 let exclusive=false;
 async function takeChannel(){ if(music) stopMusic(); exclusive=true; while(sending) await sleep(10); }
 function releaseChannel(){ exclusive=false; }
-function setConnected(on,d){ document.getElementById("dot").classList.toggle("on",on); document.getElementById("status").textContent=on?`${d.productName} (${hex(d.vendorId)}:${hex(d.productId)})`:"Not connected"; updateWriteBtn(); }
+function setConnected(on,d){ document.getElementById("dot").classList.toggle("on",on); document.getElementById("status").textContent=on?`${d.productName}${wireless?" — 2.4G":""} (${hex(d.vendorId)}:${hex(d.productId)})`:"Not connected"; updateWriteBtn(); }
 function updateWriteBtn(){ ["lRead","lApply","mStart","mTest"].forEach(id=>{ const e=document.getElementById(id); if(e) e.disabled=!cfgDev; }); const m=MODES.find(x=>x.id===mode); const b=document.getElementById("btnWrite"); b.disabled=!(cfgDev&&m.ok); b.title=!cfgDev?T("وصّل الكيبورد الأول"):(!m.ok?"المود ده لسه مستني تسجيلة":""); }
 function renderDevice(){
   const el=document.getElementById("devInfo"); document.getElementById("devEmpty").style.display=devices.length?"none":"block";
@@ -294,7 +331,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 document.getElementById("btnWrite").onclick=()=>{
   const m=MODES.find(x=>x.id===mode);
   const n=prof()[mode].reduce((a,l)=>a+Object.keys(l).length,0);
-  openModal(T("كتابة الكي ماب على الكيبورد"),LANG==="en"?`The Default, FN1 and FN2 layers will be written to the keyboard with ${n} change(s) from factory, replacing what is stored on it. Make sure the keyboard is connected by cable and the LEOBOG app is closed.`:(`هيتكتب على الكيبورد طبقة Default وFN1 وFN2، وفيهم ${n} تغيير عن الأصل، وده بيستبدل اللي متخزن عليه. اتأكد إن الكيبورد متوصل بالكابل وإن برنامج LEOBOG مقفول.`),
+  openModal(T("كتابة الكي ماب على الكيبورد"),LANG==="en"?`The Default, FN1 and FN2 layers will be written to the keyboard with ${n} change(s) from factory, replacing what is stored on it. ${wireless?"Connected over the 2.4G receiver: the page can't confirm the model wirelessly, so only continue if this is your Hi75C Pro. Keep the LEOBOG app closed.":"Make sure the keyboard is connected by cable and the LEOBOG app is closed."}`:(`هيتكتب على الكيبورد طبقة Default وFN1 وFN2، وفيهم ${n} تغيير عن الأصل، وده بيستبدل اللي متخزن عليه. ${wireless?"متوصل بالريسيفر 2.4G: الصفحة مش بتقدر تتأكد من الموديل لاسلكي، فكمّل بس لو ده الـ Hi75C Pro بتاعك. وخلي برنامج LEOBOG مقفول.":"اتأكد إن الكيبورد متوصل بالكابل وإن برنامج LEOBOG مقفول."}`),
     "",false,()=>doWrite(m),false);
 };
 async function doWrite(m){
@@ -303,7 +340,7 @@ async function doWrite(m){
   try{
     const chunks=buildChunks(m.id);
     for(let c=0;c<4;c++){
-      await cfgDev.sendFeatureReport(6,chunks[c]);
+      if(wireless) await wlWriteBlock(0x01,c,chunks[c].slice(7)); else await cfgDev.sendFeatureReport(6,chunks[c]);
       logLine(`SET id=6 chunk ${c}: 06 ${[...chunks[c].slice(0,7)].map(h2).join(" ")} …`);
       await sleep(90);
     }
@@ -351,6 +388,7 @@ function buildSelfDefine(keys){
   return out;
 }
 async function readConfig(){
+  if(wireless) return wlReadConfig();
   const req=new Uint8Array(519); req.set([0x84,0,0,0x01,0,0x80,0x00]);
   await cfgDev.sendFeatureReport(6,req); await sleep(30);
   const dv=await cfgDev.receiveFeatureReport(6);
@@ -392,9 +430,11 @@ document.getElementById("lApply").onclick=async()=>{
   const b=document.getElementById("lApply"); b.disabled=true;
   await takeChannel();
   try{
+    if(wireless&&light.effect===0x15) throw new Error("Self-define colors need the USB cable (not decoded for 2.4G yet)");
     if(light.effect===0x15){ const sd=buildSelfDefine(light.keys); await cfgDev.sendFeatureReport(6,sd.slice(1)); logLine("SET self-define colors"); await sleep(80); }
     const cfg=await readConfig(); const out=buildConfigWrite(cfg,light);
-    await cfgDev.sendFeatureReport(6,out.slice(1)); lightCfg=out.slice(0,136); lightCfg[1]=0x84;
+    if(wireless) await wlWriteBlock(0x04,0,out.slice(8,136)); else await cfgDev.sendFeatureReport(6,out.slice(1));
+    lightCfg=out.slice(0,136); lightCfg[1]=0x84;
     logLine(`SET lighting: effect ${light.effect} bright ${light.bright} speed ${light.speed} color ${light.color}`);
     toast(T("الإضاءة اتطبقت ✓"));
   }catch(e){ logLine("lighting error: "+e.message); toast(T("الإضاءة فشلت — بص في الـ Log")); }
@@ -423,6 +463,7 @@ document.getElementById("mTest").onclick=async()=>{
   toast(T("بص على الكيبورد 3 ثواني: Esc لوحده المفروض يبقى أحمر"));
 };
 async function startMusic(){
+  if(wireless){ toast(T("الإضاءة مع الموسيقى محتاجة الكابل")); return; }
   try{
     let stream;
     if(document.getElementById("mSrc").value==="mic") stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
@@ -484,4 +525,4 @@ function refresh(){ renderTabs(); renderProfiles(); renderKB(); renderChanges();
 document.getElementById("btnLang").onclick=()=>{ LANG=LANG==="en"?"ar":"en"; try{ localStorage.setItem("hi75c-lang",LANG); }catch(e){} applyStatic(); refresh(); renderLight();
   document.getElementById("mStart").textContent=T(music?"وقّف":"ابدأ"); document.getElementById("sdPaint").textContent=T(painting?"وقّف التلوين":"ابدأ التلوين"); document.getElementById("btnTest").textContent=T(testMode?"إيقاف الاختبار":"وضع الاختبار"); };
 renderCats(); refresh(); renderLight(); applyStatic();
-window.__test={buildDirect,buildConfigWrite,buildSelfDefine,buildChunks,state,assign,select,setMode:x=>{mode=x;}};
+window.__test={wlPacket,wlWriteBlock,wlReadConfig,setWl:(dev)=>{wireless=true;cfgDev=dev;},onDongleReport,buildDirect,buildConfigWrite,buildSelfDefine,buildChunks,state,assign,select,setMode:x=>{mode=x;}};
