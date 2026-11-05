@@ -50,4 +50,4 @@ Over the 2.4G receiver (USB `3554:fa09`) the same payloads travel as 20-byte out
 
 Unofficial tool, not affiliated with LEOBOG or AULA. Use at your own risk.
 
-Fonts: IBM Plex Sans, IBM Plex Sans Arabic and IBM Plex Mono, under the SIL Open Font License (`fonts/OFL.txt`).
+Code: MIT License (`LICENSE`). Fonts: IBM Plex Sans, IBM Plex Sans Arabic and IBM Plex Mono, under the SIL Open Font License (`fonts/OFL.txt`).
