@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; media-src 'self' blob:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Remap keys and control lighting on the LEOBOG Hi75C Pro from your browser — no driver install. Works on Mac, Windows and Linux in Chrome or Edge.">
+<title>Hi75C Pro — Key Remapper</title>
+<link rel="preload" href="fonts/ibm-plex-sans-arabic-arabic-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="brand-model">Hi75C Pro</span>
+    <span class="brand-sub">تخصيص الزراير</span>
+  </div>
+  <span class="status"><span class="dot" id="dot"></span><span id="status">Not connected</span></span>
+  <div class="spacer"></div>
+  <button class="ghost" id="btnLang">English</button>
+  <button class="primary" id="btnConnect">توصيل الكيبورد</button>
+  <button class="write" id="btnWrite" disabled>اكتب على الكيبورد</button>
+</header>
+
+<main>
+  <section class="stage" aria-label="Keyboard">
+    <p class="note" id="modeBanner"></p>
+    <div id="modeTabs" hidden></div>
+    <div class="layers">
+      <div class="seg" id="layerTabs" role="tablist"></div>
+      <p class="layer-hint" id="layerHint"></p>
+    </div>
+    <div class="kbwrap"><div class="kb" id="kb"></div></div>
+    <div class="toolbar">
+      <button id="btnTest">وضع الاختبار</button>
+      <button id="btnResetKey">رجّع الزرار المختار للأصل</button>
+      <button id="btnResetLayer">رجّع الطبقة دي للأصل</button>
+      <button id="btnFactory">رجّع الكي ماب كله للأصل</button>
+    </div>
+    <p class="fine">لو أي حاجة باظت: دوس Fn+Esc مع بعض 3 ثواني عشان الكيبورد يرجع لإعدادات المصنع، أو استخدم برنامج LEOBOG.</p>
+    <p class="fine" id="testHint" hidden>وضع الاختبار شغال: دوس على زراير الكيبورد وهتنوّر هنا.</p>
+  </section>
+
+  <div class="work">
+    <section class="panel picker" aria-labelledby="hPick">
+      <h2 id="hPick">اختار الوظيفة الجديدة</h2>
+      <div class="sel-info" id="selInfo">اضغط على أي زرار في الكيبورد عشان تغيّره.</div>
+      <input type="search" id="search" placeholder="Search: Home, Mute, F13, Cmd…" aria-label="Search">
+      <div class="cats" id="cats"></div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <section class="panel" id="lightCard" aria-labelledby="hLight">
+      <h2 id="hLight">الإضاءة</h2>
+      <div class="form">
+        <label for="lEffect">Effect</label><select id="lEffect"></select>
+        <label class="lrow" for="lBright">Brightness</label><input class="lrow" type="range" id="lBright" min="0" max="4" step="1">
+        <label class="lrow" for="lSpeed">Speed</label><input class="lrow" type="range" id="lSpeed" min="0" max="4" step="1">
+        <span class="lrow">Color</span><div class="sw lrow" id="lColors"></div>
+      </div>
+      <div id="sdBox" hidden>
+        <p class="fine">في Self-define: اختار لون، وبعدين دوس على الزراير في الكيبورد اللي فوق عشان تلوّنها.</p>
+        <div class="row">
+          <input type="color" id="sdColor" value="#00ff00" aria-label="Color">
+          <button id="sdPaint">ابدأ التلوين</button><button id="sdAll">لوّن الكل</button><button id="sdClear">امسح الكل</button>
+        </div>
+      </div>
+      <div class="row">
+        <button id="lRead" disabled>اقرا الإضاءة من الكيبورد</button>
+        <button class="write" id="lApply" disabled>طبّق الإضاءة</button>
+      </div>
+      <p class="fine" id="lStatus"></p>
+
+      <h2 class="sub">مع الموسيقى</h2>
+      <div class="form">
+        <label for="mSrc">الصوت</label><select id="mSrc"><option value="tab">صوت تاب أو الشاشة</option><option value="mic">المايك</option></select>
+        <label for="mStyle">الشكل</label><select id="mStyle"><option value="bars">Equalizer (أعمدة)</option><option value="pulse">نبض (الكيبورد كله)</option><option value="wave">موجة من النص</option><option value="rain">مطر</option><option value="spectrum">ألوان السبكتروم</option></select>
+        <label for="mGain">الحساسية</label><input type="range" id="mGain" min="0.5" max="4" step="0.1" value="1.6">
+      </div>
+      <div class="row">
+        <button class="write" id="mStart" disabled>ابدأ</button>
+        <button id="mTest" disabled hidden>اختبار: Esc أحمر</button>
+        <select id="mFmt" hidden><option value="tri">Format A</option><option value="planar">Format B</option></select>
+      </div>
+      <p class="fine" id="mStatus">الإضاءة دي شغالة طول ما الصفحة مفتوحة. لما توقفها، الكيبورد بيرجع لإضاءته العادية لوحده بعد ثانية.</p>
+    </section>
+
+    <div class="side">
+      <section class="panel" aria-labelledby="hProf">
+        <h2 id="hProf">البروفايلات</h2>
+        <select id="profileSel" aria-label="Profile"></select>
+        <div class="row">
+          <button id="btnNewProfile">بروفايل جديد</button>
+          <button id="btnExport">Export</button>
+          <button id="btnImport">Import</button>
+        </div>
+        <p class="fine">التغييرات بتتحفظ أوتوماتيك في المتصفح ده. الكيبورد مش بيتغيّر غير لما تدوس «اكتب على الكيبورد».</p>
+      </section>
+
+      <section class="panel">
+        <div class="seg small" id="bottomTabs">
+          <button class="tab active" data-t="changes">التغييرات</button>
+          <button class="tab" data-t="device">Device</button>
+          <button class="tab" data-t="log">Log</button>
+        </div>
+        <div data-p="changes"><pre id="changes"></pre></div>
+        <div data-p="device" hidden>
+          <p class="fine" id="devEmpty">وصّل الكيبورد بالكابل واضغط «توصيل الكيبورد»، واختار Gaming Keyboard.</p>
+          <div id="devInfo"></div>
+        </div>
+        <div data-p="log" hidden>
+          <div class="row"><button id="btnClearLog">مسح</button><button id="btnCopyLog">نسخ</button></div>
+          <div class="log" id="log"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer class="foot">
+  <p>Unofficial tool, not affiliated with LEOBOG or AULA. Talks to the keyboard over WebHID in Chrome/Edge; nothing leaves your computer.</p>
+</footer>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="box">
+  <h2 id="mTitle"></h2>
+  <div id="mBody" class="fine"></div>
+  <textarea id="mText" aria-label="Text"></textarea>
+  <div class="row end">
+    <button id="mCopy">نسخ</button><button class="primary" id="mOk">تمام</button><button id="mCancel">إلغاء</button>
+  </div>
+</div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="app.js"></script>
+</body>
+</html>
