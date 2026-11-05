@@ -357,7 +357,8 @@ async function doWrite(m){
      cfg[64+2*id] = brightness 0–4             cfg[65+2*id] = speed<<4 | colorIdx
    self-define colors: SET f6 [06 06 00 00 01 00 7a 01] + R[126] G[126] B[126]
      (planar, LED index = matrix index) */
-const EFFECTS=[[1,"Fixed on"],[2,"Respire"],[3,"Rainbow"],[4,"Flash away"],[5,"Raindrops"],[6,"Ripples shining"],[7,"Stars twinkle"],[8,"Retro snake"],[9,"Neon stream"],[10,"Reaction"],[11,"Sine wave"],[12,"Rotating windmill"],[13,"Colorful waterfall"],[14,"Blossoming"],[0x15,"Self-define"]];
+// Effect IDs confirmed from capture 08 (each effect saved in order, cable and 2.4G). IDs 6, 9 and 14 are unused.
+const EFFECTS=[[1,"Fixed on"],[2,"Respire"],[3,"Rainbow"],[4,"Flash away"],[5,"Raindrops"],[7,"Ripples shining"],[8,"Stars twinkle"],[10,"Retro snake"],[11,"Neon stream"],[12,"Reaction"],[13,"Sine wave"],[15,"Rotating windmill"],[16,"Colorful waterfall"],[17,"Blossoming"],[0x15,"Self-define"]];
 const PALETTE=[[255,0,0],[0,255,0],[0,0,255],[255,255,0],[255,0,255],[0,255,255],[255,255,255],null];
 const SD_DEFAULT=(()=>{ const k={}; [1,9,14,15,21,77,82,83,89].forEach(i=>k[i]=[255,255,255]); return k; })();
 let light=loadLight(), lightCfg=null;
