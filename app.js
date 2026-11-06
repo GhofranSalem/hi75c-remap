@@ -266,7 +266,7 @@ document.getElementById("btnReadKeymap").onclick=async()=>{
     for(const l of M.layers) for(let i=0;i<90;i++){ const v=L[l][i];
       if(l>0 && v===0x0d010000 && L[0][i]===0x0d010000) continue;      // FN2 key mirror, added automatically
       if(v!==factory(i,l,mode)){ if(!ALLOWED.has(v)&&!isCombo(v)){ ALLOWED.add(v); unknown++; } p[l][i]=v; } }
-    const name=T("من الكيبورد"); const prev=state.profiles[state.current]; const np=prev?cleanProfile(prev):blank(); np[mode]=p; state.profiles[name]=np; state.current=name;   // keep the other mode's tables from the current profile save(); refresh();
+    const name=T("من الكيبورد"); const prev=state.profiles[state.current]; const np=prev?cleanProfile(prev):blank(); np[mode]=p; state.profiles[name]=np; state.current=name; save(); refresh();   // keeps the other mode's tables from the current profile
     logLine(`keymap read from keyboard: ${p.reduce((a,o)=>a+Object.keys(o).length,0)} change(s) from factory${unknown?`, ${unknown} unknown code(s) kept as-is`:""}`);
     toast(T("اتقرا الكي ماب من الكيبورد ✓"));
   }catch(e){ logLine("read keymap error: "+e.message); toast(T("القراية فشلت — بص في الـ Log")); }
