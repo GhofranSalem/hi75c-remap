@@ -12,14 +12,14 @@ Remap keys and control the lighting on the **LEOBOG Hi75C Pro** straight from th
 - Lighting: the 14 built-in effects with brightness, speed and color, plus Self-define (paint each key)
 - Music sync: the keyboard reacts to a browser tab, your screen audio or the microphone
 - Profiles you can export and import as text
-- Works over the USB cable or the 2.4G receiver (Self-define colors and music sync need the cable)
+- Works over the USB cable. Writing over the 2.4G receiver is **temporarily turned off** while it's being fixed; you can still connect the receiver, but use the cable to write keymaps and lighting
 - English and Arabic interface
 
 ## How to use
 
-1. Plug the keyboard in with the USB cable, or plug in its 2.4G receiver and set the switch on the back to 2.4G.
+1. Plug the keyboard in with the USB cable.
 2. Open the page in **Chrome or Edge** on a desktop computer. Safari and Firefox don't support WebHID.
-3. Click **Connect keyboard** and choose **Gaming Keyboard** (cable) or the 2.4G receiver.
+3. Click **Connect keyboard** and choose **Gaming Keyboard**.
 4. Change keys, then click **Write to keyboard**. Settings are stored on the keyboard itself.
 
 **On a Mac:** the keyboard has separate keymap tables for its Mac/iOS mode (Fn+E). Pick the **Mac / iOS** tab to edit them. Writing them needs a one-time firmware patch (see [Mac mode](#about-mac-mode)); without it, keep the keyboard in Windows mode (Fn+W) and use **Mac layout** on the Windows tab.
@@ -41,7 +41,7 @@ The keyboard (Sinowealth controller, USB `258a:010c`) is configured over HID fea
 
 The direct-color format matches OpenRGB's Sinowealth 010C controller.
 
-Over the 2.4G receiver (USB `3554:fa09`) the same payloads travel as 20-byte output reports with ID `0x13`: `[13][cmd][packets][seq][chunk<<4 | len][14 bytes][checksum]`, and the receiver echoes every packet as its acknowledgement. Keymap is `cmd 01`, config read `cmd 44`, config write `cmd 04`.
+Over the 2.4G receiver (USB `3554:fa09`) the same payloads travel as 20-byte output reports with ID `0x13`: `[13][cmd][packets][seq][chunk<<4 | len][14 bytes][checksum]`, and the receiver echoes every packet as its acknowledgement. Keymap is `cmd 01`, config read `cmd 44`, config write `cmd 04`. Writing over 2.4G is switched off in the app for now (`WIRELESS_WRITE` in `app.js`).
 
 ## About Mac mode
 
@@ -78,7 +78,7 @@ Editing the Mac tables over the 2.4G receiver isn't supported yet: the wireless 
 
 ## Safety and privacy
 
-- The page only asks for the Hi75C Pro (`258a:010c`) or its 2.4G receiver (`3554:fa09`). Over the cable it checks the model ID before it allows any write; over 2.4G the model can't be read, so the write dialog says so.
+- The page only asks for the Hi75C Pro (`258a:010c`) or its 2.4G receiver (`3554:fa09`). It checks the model ID before it allows any write. Writing over 2.4G is turned off for now.
 - Only key codes the app knows can be written. Imported profiles are filtered against that list.
 - Everything runs locally in your browser. No server, no analytics, no external requests; fonts are bundled. A strict Content-Security-Policy blocks everything else.
 - Audio for music sync is analysed in the page and never recorded or sent anywhere.

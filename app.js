@@ -330,7 +330,7 @@ document.getElementById("btnConnect").onclick=async()=>{
       if(wireless && d.collections.some(c=>(c.outputReports||[]).some(r=>r.reportId===0x13))) cfgDev=d;
       d.oninputreport=ev=>{ if(ev.reportId===0x13){ onDongleReport(ev); return; } if(ev.reportId===6) logLine(`IN id=6 ${[...new Uint8Array(ev.data.buffer)].map(b=>h2(b)).join(" ")}`); };
     }
-    if(cfgDev&&wireless) logLine("2.4G receiver connected (3554:fa09). Model check isn't available over 2.4G.");
+    if(cfgDev&&wireless) logLine("2.4G receiver connected (3554:fa09). Model check isn't available over 2.4G."+(WIRELESS_WRITE?"":" Writing over 2.4G is turned off for now — use the USB cable to write."));
     if(cfgDev&&!wireless){ const model=await identify(cfgDev).catch(e=>{ logLine("identify failed: "+e.message); return -1; });
       logLine("model id: "+(model<0?"unknown":"0x"+h2(model)));
       if(model>=0 && model!==0xA3){ cfgDev=null; toast(T("ده مش Hi75C Pro — الكتابة اتقفلت عشان الأمان")); logLine("Not a Hi75C Pro (expected 0xa3). Writing disabled."); } }
@@ -364,7 +364,11 @@ async function wlSendAck(p){
   for(let a=0;a<4;a++){ const ack=wlWait(r=>r[1]===p[1]&&r[3]===p[3]&&r[19]===p[19],400); await cfgDev.sendReport(0x13,p.slice(1)); if(await ack) return; }
   throw new Error(`no ack from receiver (cmd ${h2(p[1])} packet ${p[3]})`);
 }
+// Writing over the 2.4G receiver is switched off until it is reliable (keymap + lighting). Reading still works.
+const WIRELESS_WRITE=false;
+const WL_OFF_MSG=()=>LANG==="en"?"Writing over 2.4G is turned off for now — connect the USB cable":"الكتابة بالوايرلس 2.4G مقفولة مؤقتاً — وصّل الكابل";
 async function wlWriteBlock(cmd,chunk,bytes){
+  if(!WIRELESS_WRITE) throw new Error("writing over 2.4G is disabled");
   const n=Math.ceil(bytes.length/14);
   for(let i=0;i<n;i++){ const part=bytes.slice(i*14,i*14+14); await wlSendAck(wlPacket(cmd,n,i,(chunk<<4)|part.length,part)); }
 }
@@ -387,7 +391,11 @@ let exclusive=false;
 async function takeChannel(){ if(music) stopMusic(); exclusive=true; while(sending) await sleep(10); }
 function releaseChannel(){ exclusive=false; }
 function setConnected(on,d){ document.getElementById("dot").classList.toggle("on",on); document.getElementById("status").textContent=on?`${d.productName}${wireless?" — 2.4G":""} (${hex(d.vendorId)}:${hex(d.productId)})`:"Not connected"; updateWriteBtn(); }
-function updateWriteBtn(){ ["lRead","lApply","mStart","mTest"].forEach(id=>{ const e=document.getElementById(id); if(e) e.disabled=!cfgDev; }); const m=MODES.find(x=>x.id===mode); const b=document.getElementById("btnWrite"); b.disabled=!(cfgDev&&m.ok); b.title=!cfgDev?T("وصّل الكيبورد الأول"):(!m.ok?"المود ده لسه مستني تسجيلة":""); }
+function updateWriteBtn(){
+  const wlOff=wireless&&!WIRELESS_WRITE;
+  ["lRead","lApply","mStart","mTest"].forEach(id=>{ const e=document.getElementById(id); if(e){ e.disabled=!cfgDev||(id!=="lRead"&&wlOff); e.title=wlOff&&id!=="lRead"?WL_OFF_MSG():""; } });
+  const m=MODES.find(x=>x.id===mode); const b=document.getElementById("btnWrite");
+  b.disabled=!(cfgDev&&m.ok)||wlOff; b.title=!cfgDev?T("وصّل الكيبورد الأول"):(wlOff?WL_OFF_MSG():(!m.ok?"المود ده لسه مستني تسجيلة":"")); }
 function renderDevice(){
   const el=document.getElementById("devInfo"); document.getElementById("devEmpty").style.display=devices.length?"none":"block";
   if(!devices.length){ el.innerHTML=""; return; }
@@ -414,6 +422,7 @@ function buildChunks(modeId){
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 document.getElementById("btnWrite").onclick=()=>{
   const m=MODES.find(x=>x.id===mode);
+  if(wireless&&!WIRELESS_WRITE){ toast(WL_OFF_MSG()); return; }
   if(m.page&&wireless){ toast(LANG==="en"?"Mac tables need the USB cable":"جداول الماك محتاجة الكابل"); return; }
   const n=prof()[mode].reduce((a,l)=>a+Object.keys(l).length,0);
   openModal(T("كتابة الكي ماب على الكيبورد"),LANG==="en"?`${m.page?"The Mac / iOS Default and FN1 layers":"The Default, FN1 and FN2 layers"} will be written to the keyboard with ${n} change(s) from factory, replacing what is stored on it. ${wireless?"Connected over the 2.4G receiver: the page can't confirm the model wirelessly, so only continue if this is your Hi75C Pro. Keep the LEOBOG app closed.":"Make sure the keyboard is connected by cable and the LEOBOG app is closed."}`:(`${m.page?"هيتكتب على الكيبورد طبقة Default وFN1 بتوع Mac / iOS":"هيتكتب على الكيبورد طبقة Default وFN1 وFN2"}، وفيهم ${n} تغيير عن الأصل، وده بيستبدل اللي متخزن عليه. ${wireless?"متوصل بالريسيفر 2.4G: الصفحة مش بتقدر تتأكد من الموديل لاسلكي، فكمّل بس لو ده الـ Hi75C Pro بتاعك. وخلي برنامج LEOBOG مقفول.":"اتأكد إن الكيبورد متوصل بالكابل وإن برنامج LEOBOG مقفول."}`),
@@ -542,6 +551,7 @@ document.getElementById("lRead").onclick=async()=>{
   releaseChannel();
 };
 document.getElementById("lApply").onclick=async()=>{
+  if(wireless&&!WIRELESS_WRITE){ toast(WL_OFF_MSG()); return; }
   const b=document.getElementById("lApply"); b.disabled=true;
   await takeChannel();
   try{
@@ -573,6 +583,7 @@ async function sendDirect(cols){ if(!cfgDev||sending||exclusive) return; sending
 function hsv(h,s,v){ const f=n=>{ const k=(n+h/60)%6; return Math.round(255*v*(1-s*Math.max(0,Math.min(k,4-k,1)))); }; return [f(5),f(3),f(1)]; }
 function previewDirect(cols){ document.querySelectorAll(".k").forEach(e=>{ const c=cols[+e.dataset.idx]; e.style.background=c&&(c[0]||c[1]||c[2])?`rgb(${c})`:""; }); }
 document.getElementById("mTest").onclick=async()=>{
+  if(wireless&&!WIRELESS_WRITE){ toast(WL_OFF_MSG()); return; }
   const cols=[]; cols[0]=[255,0,0]; let n=0;
   const t=setInterval(()=>{ sendDirect(cols); if(++n>25){ clearInterval(t); } },100);
   toast(T("بص على الكيبورد 3 ثواني: Esc لوحده المفروض يبقى أحمر"));
