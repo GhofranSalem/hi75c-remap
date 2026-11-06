@@ -7,6 +7,7 @@ Remap keys and control the lighting on the **LEOBOG Hi75C Pro** straight from th
 ## What it does
 
 - Remap any key on three layers: Default, FN1 (hold Fn) and FN2 (hold a key you set to FN2)
+- Key combinations on a single key (for example ⇧⌘4 for a Mac screenshot), with ready-made shortcuts
 - Keyboard functions too: media, Bluetooth slots, OS mode, Win lock, lighting controls
 - Lighting: the 14 built-in effects with brightness, speed and color, plus Self-define (paint each key)
 - Music sync: the keyboard reacts to a browser tab, your screen audio or the microphone
