@@ -22,6 +22,8 @@ Remap keys and control the lighting on the **LEOBOG Hi75C Pro** straight from th
 3. Click **Connect keyboard** and choose **Gaming Keyboard** (cable) or the 2.4G receiver.
 4. Change keys, then click **Write to keyboard**. Settings are stored on the keyboard itself.
 
+**On a Mac:** the keyboard's built-in Mac mode (Fn+E) ignores custom keymaps. Keep it in Windows mode (Fn+W) and click **Mac layout**, which swaps Win/Alt and puts media keys on the F-row, like Mac mode but with your own changes working.
+
 If anything goes wrong, hold **Fn + Esc** for 3 seconds to restore factory settings, or use the official LEOBOG app.
 
 ## How it works
@@ -31,6 +33,7 @@ The keyboard (Sinowealth controller, USB `258a:010c`) is configured over HID fea
 | Command | What it does |
 |---|---|
 | `06 03 <chunk>` | Write keymap: 4 × 512 bytes (Default, FN1, FN2, Tap), 4 bytes per key. The Hi75C Pro ignores the Tap layer, so the page doesn't show it |
+| `06 83 <chunk>` | Read the keymap back (same layout). The table byte is ignored: the board stores one keymap |
 | `06 84` / `06 04` | Read / write the lighting config (effect, brightness, speed, color) |
 | `06 06` | Self-define per-key colors |
 | `06 08` | Direct per-key colors (used for music sync) |
