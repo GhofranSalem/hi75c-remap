@@ -22,7 +22,7 @@ Remap keys and control the lighting on the **LEOBOG Hi75C Pro** straight from th
 3. Click **Connect keyboard** and choose **Gaming Keyboard** (cable) or the 2.4G receiver.
 4. Change keys, then click **Write to keyboard**. Settings are stored on the keyboard itself.
 
-**On a Mac:** the keyboard's built-in Mac mode (Fn+E) ignores custom keymaps. Keep it in Windows mode (Fn+W) and click **Mac layout**, which swaps Win/Alt and puts media keys on the F-row, like Mac mode but with your own changes working.
+**On a Mac:** the keyboard has separate keymap tables for its Mac/iOS mode (Fn+E). Pick the **Mac / iOS** tab to edit them. Writing them needs a one-time firmware patch (see [Mac mode](#about-mac-mode)); without it, keep the keyboard in Windows mode (Fn+W) and use **Mac layout** on the Windows tab.
 
 If anything goes wrong, hold **Fn + Esc** for 3 seconds to restore factory settings, or use the official LEOBOG app.
 
@@ -32,8 +32,8 @@ The keyboard (Sinowealth controller, USB `258a:010c`) is configured over HID fea
 
 | Command | What it does |
 |---|---|
-| `06 03 <chunk>` | Write keymap: 4 × 512 bytes (Default, FN1, FN2, Tap), 4 bytes per key. The Hi75C Pro ignores the Tap layer, so the page doesn't show it |
-| `06 83 <chunk>` | Read the keymap back (same layout). The table byte is ignored: the board stores one keymap |
+| `06 03 <chunk> 00 01 <page> 00 02` | Write keymap: 4 × 512 bytes (Default, FN1, FN2, Tap), 4 bytes per key. The Hi75C Pro ignores the Tap layer, so the page doesn't show it. Page 1 (Mac) needs the firmware patch |
+| `06 83 <chunk> 00 01 <page> 00 02` | Read the keymap back (same layout). Page 0 = Windows/Android tables, page 1 = Mac/iOS tables |
 | `06 84` / `06 04` | Read / write the lighting config (effect, brightness, speed, color) |
 | `06 06` | Self-define per-key colors |
 | `06 08` | Direct per-key colors (used for music sync) |
@@ -45,15 +45,31 @@ Over the 2.4G receiver (USB `3554:fa09`) the same payloads travel as 20-byte out
 
 ## About Mac mode
 
-The keyboard keeps **two keymap tables**: one for Windows mode and one for its built-in Mac mode (Fn+E). The read command can reach both (`06 83 <layer> 00 01 <table> 00 02`, table 0 = Windows, 1 = Mac, stored interleaved layer by layer). The factory Mac table has Win/Alt swapped, media keys on the F-row, ⌘Tab on F3 and ⌘H on F4.
+The keyboard keeps **two families of keymap tables** in flash: Windows/Android (Default `0xCC00`, Fn `0xD000`) and Mac/iOS (Default `0xCE00`, Fn `0xD200`). The firmware picks the Mac family whenever the OS mode is Mac or iOS. FN2 (`0xD400`) is shared by every mode.
 
-The write command, however, only ever lands in the **Windows** table. We tried every header variation (bytes 3, 4 and 5, in both Windows and Mac mode) and each write went to the Windows table; the official LEOBOG ONE app also only writes there. So custom keymaps can't reach Mac mode.
+Reading both works on stock firmware (byte 4 of the header is the page: `0x200 × page` is added to the table address). Writing does not: the stock keymap-write handler forgets to add the page, so every write lands in the Windows table, which is why the official LEOBOG ONE app can't edit Mac mode either.
 
-What works instead:
+### The firmware patch (one time, optional)
 
-- **Mac only:** keep the keyboard in Windows mode (Fn+W) and click **Mac layout**. It recreates Mac mode (Win/Alt swapped, media on the F-row, F1–F12 on Fn, Mission Control and Launchpad on F3/F4) and your own changes keep working.
-- **Mac and Windows:** save a profile for each and write the one you need when you switch computers.
+A **2-byte patch** makes the write handler use the same "add the page" routine the firmware already uses for its other write commands (`0x04DC: LJMP 0x056C → LJMP 0x04EE`). Page 0 writes behave exactly as before, so LEOBOG ONE keeps working. After the patch, the **Mac / iOS** tab writes the Mac Default and FN1 layers live, over the USB cable.
+
+The repo doesn't ship LEOBOG's firmware. `tools/hi75c_mac_patch.py` patches **your own** dump and refuses anything that isn't the known stock image:
+
+1. Get [sinowisp](https://github.com/carlossless/sinowealth-kb-tool) and dump your firmware with the `leobog-hi75c-pro` profile (`sinowisp read`).
+2. `python3 tools/hi75c_mac_patch.py <your-dump>.hex` → writes `<name>-mac-patch.hex` and `<name>-restore.hex` (61440 bytes each).
+3. `sinowisp write -d leobog-hi75c-pro <name>-mac-patch.hex`
+4. To undo: `sinowisp write -d leobog-hi75c-pro <name>-restore.hex`
+
+Flash only 61440-byte files. A 64 KB image that includes the bootloader fails verification and leaves the keyboard in bootloader mode until you write the 61440-byte restore file.
+
+**Flashing firmware is at your own risk.** The app protects stock keyboards: before writing a Mac table it checks where the write actually landed, and if it hit the Windows table it restores it and stops.
+
+Without the patch:
+
+- **Mac only:** keep the keyboard in Windows mode (Fn+W) and click **Mac layout** on the Windows tab. It recreates Mac mode (Win/Alt swapped, media on the F-row, F1–F12 on Fn, Mission Control and Launchpad on F3/F4) with your own changes working.
 - **Android mode** (Fn+Q) reads the Windows table but flips the F-row (media first, F-keys with Fn), and doesn't swap Win/Alt.
+
+Editing the Mac tables over the 2.4G receiver isn't supported yet: the wireless path uses that header byte as a packet counter.
 
 ## Safety and privacy
 

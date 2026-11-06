@@ -84,6 +84,10 @@ const LAYOUT=[
 // Factory tables (from LEOBOG ONE capture, Windows mode)
 const FACT_BASE=[41,53,43,57,131072,65536,0,30,20,4,29,524288,58,31,26,22,27,262144,59,32,8,7,6,0,60,33,21,9,25,0,61,34,23,10,5,44,62,35,28,11,17,0,63,36,24,13,16,0,64,37,12,14,54,4194304,65,38,18,15,55,218103808,66,39,19,51,56,1048576,67,45,47,52,2097152,0,68,46,48,0,0,80,69,42,49,40,82,81,117440541,76,77,75,78,79];
 const FACT_FN=[117440516,117440520,134348800,0,0,0,0,117440517,117440537,0,0,117440513,33554544,117440518,117440536,0,0,0,33554543,117440519,117440538,0,0,0,262187,0,117440539,0,0,0,262185,0,0,117440522,117440529,0,134414848,0,0,0,0,0,134414592,0,70,0,0,0,33554614,0,71,0,0,0,33554637,0,72,0,0,0,33554613,0,0,0,0,0,33554658,0,0,0,0,0,33554666,0,0,0,0,134480384,33554665,117440540,134217728,0,134414592,134414848,0,73,74,0,0,134480128];
+// Factory Mac/iOS tables (firmware flash 0xCE00 Default, 0xD200 Fn)
+const MAC_BASE=[41,53,43,57,131072,65536,0,30,20,4,29,262144,33554544,31,26,22,27,524288,33554543,32,8,7,6,0,524331,33,21,9,25,0,524299,34,23,10,5,44,134414848,35,28,11,17,0,134414592,36,24,13,16,0,33554614,37,12,14,54,8388608,33554637,38,18,15,55,218103808,33554613,39,19,51,56,1048576,33554658,45,47,52,2097152,0,33554666,46,48,50,100,80,33554665,42,49,40,82,81,117440541,76,77,75,78,79];
+const MAC_FN=[117440516,117440520,134348800,0,0,0,0,117440517,117440537,0,0,0,58,117440518,117440536,0,0,0,59,117440519,117440538,0,0,0,60,0,117440539,0,0,0,61,0,0,117440522,117440529,0,62,0,0,0,0,0,63,0,70,0,0,0,64,0,71,0,0,0,65,0,72,0,0,218103808,66,0,0,0,0,0,67,0,0,0,0,0,68,0,0,0,0,134480384,69,117440540,134217728,0,134414592,134414848,0,73,74,0,0,134480128];
+const FACT={win:[FACT_BASE,FACT_FN],mac:[MAC_BASE,MAC_FN]};
 const PHYS = FACT_BASE.map(v=>labelOfRaw(v));
 function labelOfRaw(v){ const c=BY_V.get(v>>>0); return c?c.label:(v===117440541?"Knob":"?"); }
 
@@ -92,14 +96,17 @@ function labelOfRaw(v){ const c=BY_V.get(v>>>0); return c?c.label:(v===117440541
 // One keymap shared by all OS modes (confirmed: Win & Mac captures identical,
 // and a Mac-mode write also applied in Windows mode). Firmware does the Mac swaps.
 const FN2=0x0d010000;
-const MODES=[{id:"win",name:"Hi75C",byte:0x01,ok:true}];
+// page = table page in the keymap command header (byte 4). 0 = Windows/Android, 1 = Mac/iOS.
+// Writing page 1 needs the one-time firmware patch (stock firmware ignores the page on writes).
+const MODES=[{id:"win",name:"Windows / Android",byte:0x01,page:0,layers:[0,1,2],ok:true},
+             {id:"mac",name:"Mac / iOS",byte:0x01,page:1,layers:[0,1],ok:true}];
 // chunk 0 Default · 1 FN1 · 2 FN2 · 3 Tap (tap action for dual-role keys)
 const LAYERS=["Default","FN1","FN2","Tap"];
 
 // ---------- State ----------
 // ---------- Input hardening ----------
 // Only key codes this app knows (picker codes, built-in functions, factory values) may ever be written.
-const ALLOWED=new Set([...CODES.map(c=>c.v>>>0),...Object.keys(SYS).map(k=>Number(k)>>>0),...FACT_BASE.map(v=>v>>>0),...FACT_FN.map(v=>v>>>0)]);
+const ALLOWED=new Set([...CODES.map(c=>c.v),...Object.keys(SYS).map(k=>Number(k)),...FACT_BASE,...FACT_FN,...MAC_BASE,...MAC_FN].map(v=>v>>>0));
 const BAD_NAMES=new Set(["__proto__","constructor","prototype"]);
 function cleanName(n){ n=String(n==null?"":n).replace(/[\u0000-\u001f\u007f]/g,"").trim().slice(0,40); return n&&!BAD_NAMES.has(n)?n:null; }
 const PLAIN_KEYS=new Set(COMBO_KEYS.map(c=>c.v>>>0));
@@ -121,12 +128,12 @@ function load(){ try{
   const names=Object.keys(profiles); if(!names.length) return null;
   return {current:names.includes(raw.current)?raw.current:names[0],profiles};
 }catch(e){ return null; } }
-function factory(idx,l=layer){ return l===0?FACT_BASE[idx]>>>0 : l===1?FACT_FN[idx]>>>0 : 0; }
+function factory(idx,l=layer,m=mode){ return l<2?FACT[m][l][idx]>>>0 : 0; }
 function valueAt(idx,l=layer,m=mode){
   const o=prof()[m][l][idx]; if(o!==undefined) return o>>>0;
   // a key set to FN2 in Default is mirrored into FN1 and FN2 (same as LEOBOG ONE)
   if((l===1||l===2) && prof()[m][0][idx]===FN2) return FN2;
-  return factory(idx,l);
+  return factory(idx,l,m);
 }
 
 // ---------- Keyboard render ----------
@@ -170,15 +177,24 @@ function assign(v){
 
 // ---------- Tabs ----------
 function renderTabs(){
-  document.getElementById("modeTabs").style.display="none";
+  const mt=document.getElementById("modeTabs"); mt.hidden=false; mt.className="seg"; mt.setAttribute("role","tablist"); mt.innerHTML="";
+  MODES.forEach(m=>{ const t=document.createElement("button"); t.type="button"; t.setAttribute("role","tab"); t.setAttribute("aria-selected",m.id===mode);
+    t.className="tab"+(m.id===mode?" active":""); t.textContent=m.name;
+    t.onclick=()=>{ mode=m.id; if(!m.layers.includes(layer)) layer=0; refresh(); }; mt.appendChild(t); });
+  const ML=MODES.find(x=>x.id===mode).layers;
   const le=document.getElementById("layerTabs"); le.innerHTML="";
   LAYERS.forEach((n,i)=>{ const t=document.createElement("button"); t.type="button"; t.setAttribute("role","tab");
-    if(i===3) return; // Tap layer: the Hi75C Pro firmware ignores it, so it is not shown (still written as zeros, like LEOBOG ONE)
+    if(!ML.includes(i)) return; // Tap layer (and FN2 in Mac mode, which shares the Windows FN2 table): the Hi75C Pro firmware ignores it, so it is not shown (still written as zeros, like LEOBOG ONE)
     t.className="tab"+(i===layer?" active":""); t.textContent=n; t.onclick=()=>{layer=i; refresh();}; le.appendChild(t); });
-  const hints=[T("اللي الزراير بتعمله لما تدوسها عادي.")+" "+T("على الماك: خلي الكيبورد على مود Windows (Fn+W) ودوس «ترتيب الماك». في مود Mac الكيبورد بيتجاهل أي تعديل."),T("اللي الزراير بتعمله وانت ماسك Fn. الزرار اللي عليه «·» مش بيعمل حاجة في الطبقة دي."),T("اللي الزراير بتعمله وانت ماسك زرار FN2. عشان تستخدمها خلي زرار في Default يبقى FN2 (من Special)."),""];
+  const hints=[T("اللي الزراير بتعمله لما تدوسها عادي."),T("اللي الزراير بتعمله وانت ماسك Fn. الزرار اللي عليه «·» مش بيعمل حاجة في الطبقة دي."),T("اللي الزراير بتعمله وانت ماسك زرار FN2. عشان تستخدمها خلي زرار في Default يبقى FN2 (من Special)."),""];
   document.getElementById("layerHint").textContent=hints[layer];
   const m=MODES.find(x=>x.id===mode); const b=document.getElementById("modeBanner");
-  b.className="note"; b.innerHTML=LANG==="en"?`<b>Ready to write.</b> Custom keymaps work while the keyboard is in Windows mode (Fn+W); its built-in Mac mode ignores them. On a Mac, stay in Windows mode and use “Mac layout”. Change what you want, then click “Write to keyboard”.`:`<b>جاهز للكتابة.</b> التعديلات بتشتغل والكيبورد على مود Windows (Fn+W)، ومود Mac اللي جواه بيتجاهلها. على الماك، خليه على مود Windows واستخدم «ترتيب الماك». غيّر اللي انت عاوزه، وبعدين دوس «اكتب على الكيبورد».`;
+  b.className="note"; b.innerHTML=mode==="mac"
+    ? (LANG==="en"?`<b>Mac / iOS tables</b> — used when the keyboard is in Mac mode (Fn+E) or iOS mode. Writing them needs the one-time firmware patch and the USB cable; on stock firmware the app detects it and stops. FN2 is shared with Windows mode.`
+                  :`<b>جداول Mac / iOS</b> — بتشتغل والكيبورد على مود Mac (Fn+E) أو iOS. الكتابة عليها محتاجة باتش الفيرموير مرة واحدة والكابل؛ لو الفيرموير أصلي الأبلكيشن بيكتشف ده ويوقف. طبقة FN2 مشتركة مع مود Windows.`)
+    : (LANG==="en"?`<b>Windows / Android tables</b> — used in Windows (Fn+W) and Android modes. Change what you want, then click “Write to keyboard”.`
+                  :`<b>جداول Windows / Android</b> — بتشتغل على مود Windows (Fn+W) و Android. غيّر اللي انت عاوزه، وبعدين دوس «اكتب على الكيبورد».`);
+  document.getElementById("btnMacPreset").hidden=mode==="mac";
 }
 
 // ---------- Picker ----------
@@ -212,7 +228,7 @@ document.getElementById("search").oninput=renderGrid;
 function renderChanges(){
   const lines=[];
   MODES.forEach(m=>prof()[m.id].forEach((lay,i)=>Object.entries(lay).forEach(([idx,v])=>{
-    lines.push(`[${LAYERS[i]}] ${PHYS[idx]}  →  ${labelOf(v)}   (0x${(v>>>0).toString(16).padStart(8,"0")})`);
+    lines.push(`[${m.name} · ${LAYERS[i]}] ${PHYS[idx]}  →  ${labelOf(v)}   (0x${(v>>>0).toString(16).padStart(8,"0")})`);
   })));
   document.getElementById("changes").textContent=lines.length?lines.join("\n"):T("مفيش تغييرات لسه — كل الزراير على الإعدادات الأصلية.");
 }
@@ -227,25 +243,30 @@ document.getElementById("btnResetKey").onclick=()=>{ if(selected===null) return;
 document.getElementById("btnResetLayer").onclick=()=>{ prof()[mode][layer]={}; save(); refresh(); };
 // Read the keymap stored on the keyboard: SET f6 [06 83 <chunk> 00 01 00 00 02] → GET f6 (520 B, same layout as the write).
 // The table byte (01) is ignored by the firmware: there is only one stored keymap.
-async function readKeymapChunk(c){
-  const req=new Uint8Array(519); req.set([0x83,c,0x00,0x01,0x00,0x00,0x02]);
+async function readKeymapRaw(c,page=0){
+  const req=new Uint8Array(519); req.set([0x83,c,0x00,0x01,page,0x00,0x02]);
   await cfgDev.sendFeatureReport(6,req); await sleep(60);
   const dv=await cfgDev.receiveFeatureReport(6); let b=new Uint8Array(dv.buffer,dv.byteOffset,dv.byteLength);
   if(b[0]===0x83){ const t=new Uint8Array(b.length+1); t[0]=6; t.set(b,1); b=t; }
-  if(b[1]!==0x83||b[2]!==c||b.length<8+4*90) throw new Error("unexpected keymap reply: "+[...b.slice(0,8)].map(h2).join(" "));
-  return Array.from({length:90},(_,i)=>((b[8+4*i]<<24)|(b[9+4*i]<<16)|(b[10+4*i]<<8)|b[11+4*i])>>>0);
+  if(b[1]!==0x83||b[2]!==c||b.length<520) throw new Error("unexpected keymap reply: "+[...b.slice(0,8)].map(h2).join(" "));
+  return b.slice(8,520);                                  // 512 data bytes, same layout as a write
+}
+async function readKeymapChunk(c,page=0){
+  const b=await readKeymapRaw(c,page);
+  return Array.from({length:90},(_,i)=>((b[4*i]<<24)|(b[4*i+1]<<16)|(b[4*i+2]<<8)|b[4*i+3])>>>0);
 }
 document.getElementById("btnReadKeymap").onclick=async()=>{
   if(!cfgDev){ toast(T("وصّل الكيبورد الأول")); return; }
   if(wireless){ toast(T("قراية الكي ماب محتاجة الكابل")); return; }
   await takeChannel();
   try{
-    const L=[]; for(let c=0;c<3;c++) L.push(await readKeymapChunk(c));
+    const M=MODES.find(x=>x.id===mode);
+    const L=[]; for(const c of M.layers) L.push(await readKeymapChunk(c,M.page));
     const p=[{},{},{},{}]; let unknown=0;
-    for(let l=0;l<3;l++) for(let i=0;i<90;i++){ const v=L[l][i];
+    for(const l of M.layers) for(let i=0;i<90;i++){ const v=L[l][i];
       if(l>0 && v===0x0d010000 && L[0][i]===0x0d010000) continue;      // FN2 key mirror, added automatically
-      if(v!==factory(i,l)){ if(!ALLOWED.has(v)&&!isCombo(v)){ ALLOWED.add(v); unknown++; } p[l][i]=v; } }
-    const name=T("من الكيبورد"); state.profiles[name]=blank(); state.profiles[name][mode]=p; state.current=name; save(); refresh();
+      if(v!==factory(i,l,mode)){ if(!ALLOWED.has(v)&&!isCombo(v)){ ALLOWED.add(v); unknown++; } p[l][i]=v; } }
+    const name=T("من الكيبورد"); const prev=state.profiles[state.current]; const np=prev?cleanProfile(prev):blank(); np[mode]=p; state.profiles[name]=np; state.current=name;   // keep the other mode's tables from the current profile save(); refresh();
     logLine(`keymap read from keyboard: ${p.reduce((a,o)=>a+Object.keys(o).length,0)} change(s) from factory${unknown?`, ${unknown} unknown code(s) kept as-is`:""}`);
     toast(T("اتقرا الكي ماب من الكيبورد ✓"));
   }catch(e){ logLine("read keymap error: "+e.message); toast(T("القراية فشلت — بص في الـ Log")); }
@@ -380,7 +401,7 @@ function buildChunks(modeId){
   const m=MODES.find(x=>x.id===modeId); const chunks=[];
   for(let c=0;c<4;c++){
     const buf=new Uint8Array(519);           // = full report bytes 1..519
-    buf[0]=0x03; buf[1]=c; buf[2]=0x00; buf[3]=m.byte; buf[4]=0; buf[5]=0; buf[6]=0x02;
+    buf[0]=0x03; buf[1]=c; buf[2]=0x00; buf[3]=m.byte; buf[4]=m.page; buf[5]=0; buf[6]=0x02;
     for(let i=0;i<90;i++){
       const v=valueAt(i,c,modeId); const o=7+4*i;
       buf[o]=(v>>>24)&255; buf[o+1]=(v>>>16)&255; buf[o+2]=(v>>>8)&255; buf[o+3]=v&255;
@@ -393,20 +414,50 @@ function buildChunks(modeId){
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 document.getElementById("btnWrite").onclick=()=>{
   const m=MODES.find(x=>x.id===mode);
+  if(m.page&&wireless){ toast(LANG==="en"?"Mac tables need the USB cable":"جداول الماك محتاجة الكابل"); return; }
   const n=prof()[mode].reduce((a,l)=>a+Object.keys(l).length,0);
-  openModal(T("كتابة الكي ماب على الكيبورد"),LANG==="en"?`The Default, FN1 and FN2 layers will be written to the keyboard with ${n} change(s) from factory, replacing what is stored on it. ${wireless?"Connected over the 2.4G receiver: the page can't confirm the model wirelessly, so only continue if this is your Hi75C Pro. Keep the LEOBOG app closed.":"Make sure the keyboard is connected by cable and the LEOBOG app is closed."}`:(`هيتكتب على الكيبورد طبقة Default وFN1 وFN2، وفيهم ${n} تغيير عن الأصل، وده بيستبدل اللي متخزن عليه. ${wireless?"متوصل بالريسيفر 2.4G: الصفحة مش بتقدر تتأكد من الموديل لاسلكي، فكمّل بس لو ده الـ Hi75C Pro بتاعك. وخلي برنامج LEOBOG مقفول.":"اتأكد إن الكيبورد متوصل بالكابل وإن برنامج LEOBOG مقفول."}`),
+  openModal(T("كتابة الكي ماب على الكيبورد"),LANG==="en"?`${m.page?"The Mac / iOS Default and FN1 layers":"The Default, FN1 and FN2 layers"} will be written to the keyboard with ${n} change(s) from factory, replacing what is stored on it. ${wireless?"Connected over the 2.4G receiver: the page can't confirm the model wirelessly, so only continue if this is your Hi75C Pro. Keep the LEOBOG app closed.":"Make sure the keyboard is connected by cable and the LEOBOG app is closed."}`:(`${m.page?"هيتكتب على الكيبورد طبقة Default وFN1 بتوع Mac / iOS":"هيتكتب على الكيبورد طبقة Default وFN1 وFN2"}، وفيهم ${n} تغيير عن الأصل، وده بيستبدل اللي متخزن عليه. ${wireless?"متوصل بالريسيفر 2.4G: الصفحة مش بتقدر تتأكد من الموديل لاسلكي، فكمّل بس لو ده الـ Hi75C Pro بتاعك. وخلي برنامج LEOBOG مقفول.":"اتأكد إن الكيبورد متوصل بالكابل وإن برنامج LEOBOG مقفول."}`),
     "",false,()=>doWrite(m),false);
 };
+// Mac/iOS tables live at page 1. Only a patched firmware honours the page on writes; stock firmware
+// writes to the Windows table instead. So: back up the Windows Default, write Mac Default, verify where
+// it landed, and if the Windows table changed, restore it and stop.
+const sameBytes=(a,b)=>a.length===b.length&&a.every((x,i)=>x===b[i]);
+async function writeMacTables(chunks){
+  const send=async buf=>{ await cfgDev.sendFeatureReport(6,buf); logLine(`SET id=6: 06 ${[...buf.slice(0,7)].map(h2).join(" ")} …`); await sleep(250); };
+  const win0=await readKeymapRaw(0,0);
+  for(const c of [0,1]){
+    await send(chunks[c]);
+    if(c===0){
+      const w=await readKeymapRaw(0,0);
+      if(!sameBytes(w,win0)){
+        logLine("Windows table changed → this keyboard runs the stock firmware. Restoring the Windows Default layer…");
+        const fix=new Uint8Array(519); fix.set([0x03,0,0x00,0x01,0x00,0x00,0x02]); fix.set(win0,7); await send(fix);
+        const ok=sameBytes(await readKeymapRaw(0,0),win0);
+        logLine(ok?"Windows Default restored ✓":"Restore did not verify — hold Fn+Esc for 3 seconds to factory reset.");
+        openModal(LANG==="en"?"Firmware patch needed":"محتاج باتش الفيرموير",
+          LANG==="en"?"This keyboard still runs the stock firmware, which can only write the Windows tables. Nothing was changed"+(ok?"":" except the Windows Default layer — hold Fn+Esc for 3 seconds")+". Writing Mac tables needs the one-time firmware patch (see README).":"الكيبورد لسه على الفيرموير الأصلي، واللي بيكتب على جداول الويندوز بس. مفيش حاجة اتغيرت"+(ok?"":" غير طبقة Default في الويندوز — دوس Fn+Esc 3 ثواني")+". الكتابة على جداول الماك محتاجة باتش الفيرموير مرة واحدة (بص في الـ README).",
+          "",false,()=>{},false);
+        return false;
+      }
+    }
+    const back=await readKeymapRaw(c,1);
+    if(!sameBytes(back,chunks[c].slice(7))){ logLine(`Mac chunk ${c} did not verify after writing`); return false; }
+  }
+  return true;
+}
 async function doWrite(m){
   const b=document.getElementById("btnWrite"); b.disabled=true; b.textContent=T("بيكتب…");
   await takeChannel();
   try{
     const chunks=buildChunks(m.id);
-    for(let c=0;c<4;c++){
-      if(wireless) await wlWriteBlock(0x01,c,chunks[c].slice(7)); else await cfgDev.sendFeatureReport(6,chunks[c]);
-      logLine(`SET id=6 chunk ${c}: 06 ${[...chunks[c].slice(0,7)].map(h2).join(" ")} …`);
-      await sleep(90);
-    }
+    if(m.page===0){
+      for(let c=0;c<4;c++){
+        if(wireless) await wlWriteBlock(0x01,c,chunks[c].slice(7)); else await cfgDev.sendFeatureReport(6,chunks[c]);
+        logLine(`SET id=6 chunk ${c}: 06 ${[...chunks[c].slice(0,7)].map(h2).join(" ")} …`);
+        await sleep(90);
+      }
+    } else if(!(await writeMacTables(chunks))) throw new Error("Mac write stopped");
     toast(T("اتكتب على الكيبورد ✓ — جرّب الزراير")); logLine("write OK");
   }catch(e){ logLine("write error: "+e.message); toast(T("الكتابة فشلت — بص في الـ Log")); }
   releaseChannel(); b.textContent=T("اكتب على الكيبورد"); updateWriteBtn();
