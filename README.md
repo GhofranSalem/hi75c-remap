@@ -41,7 +41,7 @@ The keyboard (Sinowealth controller, USB `258a:010c`) is configured over HID fea
 
 The direct-color format matches OpenRGB's Sinowealth 010C controller.
 
-Over the 2.4G receiver (USB `3554:fa09`) the same payloads travel as 20-byte output reports with ID `0x13`: `[13][cmd][packets][seq][chunk<<4 | len][14 bytes][checksum]`, and the receiver echoes every packet as its acknowledgement. Keymap is `cmd 01`, config read `cmd 44`, config write `cmd 04`. Writing over 2.4G is switched off in the app for now (`WIRELESS_WRITE` in `app.js`).
+Over the 2.4G receiver (USB `3554:fa09`) the same payloads travel as 20-byte output reports with ID `0x13`: `[13][cmd][packets][seq][chunk<<4 | len][14 bytes][checksum]`, and the receiver echoes every packet as its acknowledgement. Keymap is `cmd 01`, config read `cmd 44`, config write `cmd 04`. Writing over 2.4G is switched off in the app for now (`WIRELESS_WRITE` in `js/device.js`).
 
 ## About Mac mode
 
@@ -75,6 +75,20 @@ Without the patch:
 - **Android mode** (Fn+Q) reads the Windows table but flips the F-row (media first, F-keys with Fn), and doesn't swap Win/Alt.
 
 Editing the Mac tables over the 2.4G receiver isn't supported yet: the wireless path uses that header byte as a packet counter.
+
+## Code layout
+
+| File | What's in it |
+|---|---|
+| `js/keys.js` | Key codes, physical layout, factory tables, OS modes |
+| `js/device.js` | WebHID protocol: cable + 2.4G, keymap, lighting, Mac-table write check |
+| `js/lighting.js` | Lighting config encode/decode |
+| `js/music.js` | Music sync (audio → per-key colors) |
+| `js/i18n.js` | All UI text, English and Arabic |
+| `js/app.js` | UI: rendering, profiles, events |
+| `tools/hi75c_mac_patch.py` | One-time firmware patch for the Mac tables |
+
+No build step: plain ES modules, served as-is by GitHub Pages.
 
 ## Safety and privacy
 
