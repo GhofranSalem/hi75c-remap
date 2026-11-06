@@ -43,6 +43,18 @@ The direct-color format matches OpenRGB's Sinowealth 010C controller.
 
 Over the 2.4G receiver (USB `3554:fa09`) the same payloads travel as 20-byte output reports with ID `0x13`: `[13][cmd][packets][seq][chunk<<4 | len][14 bytes][checksum]`, and the receiver echoes every packet as its acknowledgement. Keymap is `cmd 01`, config read `cmd 44`, config write `cmd 04`.
 
+## About Mac mode
+
+The keyboard keeps **two keymap tables**: one for Windows mode and one for its built-in Mac mode (Fn+E). The read command can reach both (`06 83 <layer> 00 01 <table> 00 02`, table 0 = Windows, 1 = Mac, stored interleaved layer by layer). The factory Mac table has Win/Alt swapped, media keys on the F-row, ⌘Tab on F3 and ⌘H on F4.
+
+The write command, however, only ever lands in the **Windows** table. We tried every header variation (bytes 3, 4 and 5, in both Windows and Mac mode) and each write went to the Windows table; the official LEOBOG ONE app also only writes there. So custom keymaps can't reach Mac mode.
+
+What works instead:
+
+- **Mac only:** keep the keyboard in Windows mode (Fn+W) and click **Mac layout**. It recreates Mac mode (Win/Alt swapped, media on the F-row, F1–F12 on Fn, Mission Control and Launchpad on F3/F4) and your own changes keep working.
+- **Mac and Windows:** save a profile for each and write the one you need when you switch computers.
+- **Android mode** (Fn+Q) reads the Windows table but flips the F-row (media first, F-keys with Fn), and doesn't swap Win/Alt.
+
 ## Safety and privacy
 
 - The page only asks for the Hi75C Pro (`258a:010c`) or its 2.4G receiver (`3554:fa09`). Over the cable it checks the model ID before it allows any write; over 2.4G the model can't be read, so the write dialog says so.
