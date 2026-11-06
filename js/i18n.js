@@ -5,6 +5,7 @@ const S = {
   notConnected:  { en: "Not connected", ar: "مش متوصل" },
   connectedUsb:  { en: "Connected by cable", ar: "متوصل بالكابل" },
   connected24:   { en: "Connected over 2.4G", ar: "متوصل بالوايرلس 2.4G" },
+  osMode:        { en: "{os} mode", ar: "مود {os}" },
   connect:       { en: "Connect keyboard", ar: "توصيل الكيبورد" },
   write:         { en: "Write to keyboard", ar: "اكتب على الكيبورد" },
   writing:       { en: "Writing…", ar: "بيكتب…" },

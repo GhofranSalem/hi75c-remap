@@ -56,6 +56,21 @@ function valueAt(idx, l = layer, m = mode) {
 const label = v => labelOf(v, isMac());
 const phys = idx => macName(PHYS[idx], isMac());
 
+// OS mode the keyboard is in (read from its settings page), null = unknown
+const OS_NAMES = ["Windows", "Android", "Mac", "iOS"];
+let osMode = null;
+async function detectOsMode(switchTab) {
+  if (!hid.dev.cfg) return;
+  try {
+    const m = await hid.exclusively(hid.readOsMode);
+    if (m !== osMode) log(`keyboard OS mode byte: ${m}${OS_NAMES[m] ? ` (${OS_NAMES[m]})` : ""}`);
+    osMode = m in OS_NAMES ? m : null;
+    if (switchTab && osMode !== null) { mode = osMode >= 2 ? "mac" : "win"; if (!M().layers.includes(layer)) layer = 0; refresh(); }
+    renderStatus();
+  } catch (e) { log("read OS mode error: " + e.message); }
+}
+addEventListener("focus", () => detectOsMode(false));       // user may have pressed Fn+W/E… on the keyboard
+
 // What the keyboard holds, as far as we know (after a read or write). Drives the "unsaved changes" dot.
 const onKeyboard = {};
 const snapshot = m => JSON.stringify(prof()[m]);
@@ -319,13 +334,14 @@ $("btnConnect").onclick = async () => {
     const r = await hid.connect();
     if (r.wrongModel) toast(t("wrongModel"));
     renderStatus(); updateButtons();
+    await detectOsMode(true);
   } catch (e) { log("connect error: " + e.message); toast(t("connectFail")); }
 };
-hid.init({ onLog: s => log(s), onDisconnect: () => { if (music.isPlaying()) { music.stop(); musicStopped(); } for (const k in onKeyboard) delete onKeyboard[k]; renderStatus(); updateButtons(); } });
+hid.init({ onLog: s => log(s), onDisconnect: () => { if (music.isPlaying()) { music.stop(); musicStopped(); } for (const k in onKeyboard) delete onKeyboard[k]; osMode = null; renderStatus(); updateButtons(); } });
 function renderStatus() {
   const on = !!hid.dev.product;
   $("dot").classList.toggle("on", on);
-  $("status").textContent = on ? t(hid.dev.wireless ? "connected24" : "connectedUsb") : t("notConnected");
+  $("status").textContent = on ? t(hid.dev.wireless ? "connected24" : "connectedUsb") + (osMode !== null ? " · " + t("osMode", { os: OS_NAMES[osMode] }) : "") : t("notConnected");
   $("status").title = on ? `${hid.dev.product.productName} (${hid.dev.product.vendorId.toString(16)}:${hid.dev.product.productId.toString(16)})` : "";
 }
 function updateButtons() {

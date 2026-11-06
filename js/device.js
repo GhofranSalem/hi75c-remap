@@ -130,6 +130,10 @@ async function writeMacTables(page, packets) {
 }
 
 // ---------- lighting config ----------
+// The config read returns the settings page from flash: cfg[8+i] mirrors XDATA 0x0309+i.
+// cfg[35] = XDATA 0x0324 = current OS mode (0 Windows, 1 Android, 2 Mac, 3 iOS; ≥2 uses the Mac tables).
+export const OS_MODE_BYTE = 35;
+export async function readOsMode() { const c = await readConfig(); return c[OS_MODE_BYTE]; }
 export async function readConfig() {
   if (dev.wireless) return wlReadConfig();
   return (await query([0x84, 0, 0, 0x01, 0, 0x80, 0x00], 0x84)).slice(0, 136);
