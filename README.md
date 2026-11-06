@@ -51,7 +51,12 @@ Reading both works on stock firmware (byte 4 of the header is the page: `0x200 �
 
 ### The firmware patch (one time, optional)
 
-A **2-byte patch** makes the write handler use the same "add the page" routine the firmware already uses for its other write commands (`0x04DC: LJMP 0x056C → LJMP 0x04EE`). Page 0 writes behave exactly as before, so LEOBOG ONE keeps working. After the patch, the **Mac / iOS** tab writes the Mac Default and FN1 layers live, over the USB cable.
+A small patch (13 bytes in two places) fixes two firmware bugs:
+
+1. The keymap-write handler forgets to add the page, so it now uses the same "add the page" routine the firmware already uses for its other write commands (`0x04DC: LJMP 0x056C → LJMP 0x04EE`).
+2. While Fn is held, the firmware decides whether a key has an Fn function by looking at the **Windows** Fn table, even in Mac mode, so Mac Fn edits only worked on keys that also had a Windows Fn function. The check at `0x384B` now looks at the Fn table of the current mode.
+
+Page 0 writes and Windows/Android typing behave exactly as before, so LEOBOG ONE keeps working. After the patch, the **Mac / iOS** tab writes the Mac Default and FN1 layers live, over the USB cable.
 
 The repo doesn't ship LEOBOG's firmware. `tools/hi75c_mac_patch.py` patches **your own** dump and refuses anything that isn't the known stock image:
 
