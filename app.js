@@ -35,7 +35,7 @@ for(let i=13;i<=24;i++) add(KB(0x68+i-13),"F"+i,"F-keys");
 [[0x46,"PrtSc"],[0x47,"ScrLk"],[0x48,"Pause"],[0x49,"Ins"],[0x4A,"Home"],[0x4B,"PgUp"],[0x4C,"Del"],[0x4D,"End"],[0x4E,"PgDn"],[0x4F,"→"],[0x50,"←"],[0x51,"↓"],[0x52,"↑"],[0x65,"Menu"]].forEach(a=>add(KB(a[0]),a[1],"Navigation"));
 [[0xE0,"L Ctrl"],[0xE1,"L Shift"],[0xE2,"L Alt"],[0xE3,"L Win"],[0xE4,"R Ctrl"],[0xE5,"R Shift"],[0xE6,"R Alt"],[0xE7,"R Win"]].forEach(a=>add(MOD(a[0]),a[1],"Modifiers"));
 [[0x53,"NumLk"],[0x54,"KP /"],[0x55,"KP *"],[0x56,"KP -"],[0x57,"KP +"],[0x58,"KP Enter"],[0x59,"KP 1"],[0x5A,"KP 2"],[0x5B,"KP 3"],[0x5C,"KP 4"],[0x5D,"KP 5"],[0x5E,"KP 6"],[0x5F,"KP 7"],[0x60,"KP 8"],[0x61,"KP 9"],[0x62,"KP 0"],[0x63,"KP ."]].forEach(a=>add(KB(a[0]),a[1],"Numpad"));
-[[0xCD,"Play/Pause"],[0xB5,"Next"],[0xB6,"Prev"],[0xB7,"Stop"],[0xE2,"Mute"],[0xE9,"Vol +"],[0xEA,"Vol −"],[0x6F,"Bright +"],[0x70,"Bright −"],[0x223,"Browser Home"],[0x192,"Calculator"],[0x18A,"Mail"],[0x221,"Search"]].forEach(a=>add(CON(a[0]),a[1],"Media"));
+[[0xCD,"Play/Pause"],[0xB5,"Next"],[0xB6,"Prev"],[0xB7,"Stop"],[0xE2,"Mute"],[0xE9,"Vol +"],[0xEA,"Vol −"],[0x6F,"Bright +"],[0x70,"Bright −"],[0x223,"Browser Home"],[0x192,"Calculator"],[0x18A,"Mail"],[0x221,"Search"],[0x29F,"Mission Control"],[0x2A0,"Launchpad"]].forEach(a=>add(CON(a[0]),a[1],"Media"));
 add(0x0d000000,"Fn","Special");
 add(0x0d010000,"FN2","Special");
 [[0x08000000,"Light effect"],[0x08020000,"Light color"],[0x08030100,"Light +"],[0x08030200,"Light −"],[0x08040100,"Speed +"],[0x08040200,"Speed −"],[0x07000001,"Win Lock"],[0x0700001c,"Knob light"]].forEach(a=>add(a[0],a[1],"Keyboard"));
@@ -258,8 +258,8 @@ document.getElementById("btnMacPreset").onclick=()=>{
   const p=prof()[mode];
   p[0][11]=MOD(0xE2); p[0][17]=MOD(0xE3); p[0][53]=MOD(0xE7);
   FROW.forEach(i=>{ p[0][i]=FACT_FN[i]>>>0; p[1][i]=FACT_BASE[i]>>>0; });
-  p[0][24]=0x00010052;  // F3 = ⌃↑ Mission Control
-  p[0][30]=0x00000044;  // F4 = F11, Show Desktop on macOS
+  p[0][24]=CON(0x29F);  // F3 = Mission Control (consumer AC Desktop Show All Windows, as Keychron boards send)
+  p[0][30]=CON(0x2A0);  // F4 = Launchpad (consumer 0x2A0)
   save(); refresh(); toast(T("اتطبق ترتيب الماك — اكتب على الكيبورد وخليه على Fn+W"));
 };
 document.getElementById("btnFactory").onclick=()=>{ prof()[mode]=[{},{},{},{}]; save(); refresh(); toast(T("رجعت للأصل هنا — دوس «اكتب على الكيبورد» عشان يتطبق")); };
