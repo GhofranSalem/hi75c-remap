@@ -12,11 +12,11 @@ const S = {
   pendingTitle:  { en: "You have changes that aren't on the keyboard yet", ar: "فيه تعديلات لسه ماتكتبتش على الكيبورد" },
 
   modeWinNote:   { en: "Used in Windows (Fn+W) and Android modes.", ar: "بتشتغل في مود Windows (Fn+W) و Android." },
-  modeMacNote:   { en: "Used in Mac (Fn+E) and iOS modes. Writing these needs the one-time firmware patch and the USB cable —", ar: "بتشتغل في مود Mac (Fn+E) و iOS. الكتابة عليها محتاجة باتش الفيرموير مرة واحدة والكابل —" },
+  modeMacNote:   { en: "Used in Mac (Fn+E) and iOS modes. Writing needs the one-time firmware patch —", ar: "بتشتغل في مود Mac (Fn+E) و iOS. الكتابة عليها محتاجة باتش الفيرموير —" },
   howTo:         { en: "how", ar: "إزاي" },
-  hintDefault:   { en: "What keys do when pressed normally. Click a key, then pick its new function.", ar: "اللي الزراير بتعمله لما تدوسها عادي. دوس على زرار وبعدين اختار وظيفته الجديدة." },
-  hintFn1:       { en: "What keys do while holding Fn. Keys marked “·” do nothing on this layer.", ar: "اللي الزراير بتعمله وانت ماسك Fn. الزرار اللي عليه «·» مش بيعمل حاجة في الطبقة دي." },
-  hintFn2:       { en: "What keys do while holding an FN2 key. To use it, set a key in Default to FN2 (under Special).", ar: "اللي الزراير بتعمله وانت ماسك زرار FN2. عشان تستخدمها خلي زرار في Default يبقى FN2 (من Special)." },
+  hintDefault:   { en: "What keys do when pressed. Click a key, then pick its new function.", ar: "اللي الزراير بتعمله. دوس على زرار واختار وظيفته الجديدة." },
+  hintFn1:       { en: "What keys do while holding Fn. Keys marked · do nothing here.", ar: "اللي الزراير بتعمله وانت ماسك Fn. الزرار اللي عليه · مالوش وظيفة هنا." },
+  hintFn2:       { en: "What keys do while holding an FN2 key (set one in Default, under Special).", ar: "اللي الزراير بتعمله وانت ماسك زرار FN2 (حط واحد في Default من Special)." },
 
   readKeymap:    { en: "Read from keyboard", ar: "اقرا من الكيبورد" },
   macPreset:     { en: "Mac layout", ar: "ترتيب الماك" },

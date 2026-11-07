@@ -62,6 +62,7 @@ export function createTyping({ textEl, inputEl, statsEl, labels, onDone }) {
     focus: () => inputEl.focus({ preventScroll: true }),
     setLang(l) { const n = l === "ar" ? "ar" : "en"; if (n === lang) return; lang = n; last = -1; if (target) next(); },
     get loaded() { return !!target; },
+    get done() { return done; },
     stop: () => clearInterval(tick),
   };
 }

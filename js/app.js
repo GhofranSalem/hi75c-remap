@@ -236,7 +236,8 @@ async function writeKeymap(m) {
 function setTab(name) {
   tab = name;
   document.querySelectorAll("#workTabs .tab").forEach(x => { const on = x.dataset.t === name; x.classList.toggle("active", on); x.setAttribute("aria-selected", on); });
-  document.querySelectorAll(".work [data-p]").forEach(p => { p.hidden = p.dataset.p !== name; });
+  // All panes share one grid cell, so the panel keeps the height of the tallest one and the page never jumps.
+  document.querySelectorAll(".work [data-p]").forEach(p => { const on = p.dataset.p === name; p.classList.toggle("active", on); p.inert = !on; });
   if (name === "typing") { if (!typing.loaded) typing.next(); typing.focus(); }
   renderKB(); renderTester();
 }
@@ -271,7 +272,7 @@ function onKey(ev, down) {
   if ($("modal").classList.contains("show")) { if (down && ev.key === "Escape") closeModal(); return; }
   const inField = ev.target !== $("tInput") && /INPUT|TEXTAREA|SELECT/.test(ev.target?.tagName);
   if (inField || (tab !== "tester" && tab !== "typing")) return;
-  if (tab === "tester") ev.preventDefault();                     // keep Space/Tab/arrows from scrolling or moving focus
+  if (tab === "tester" && !((ev.metaKey || ev.ctrlKey) && !/^(Meta|Control)/.test(ev.code))) ev.preventDefault();   // keep Space/Tab/arrows from scrolling or moving focus
   const v = evToV(ev.code), idxs = v === null ? [] : keysSending(v);
   document.querySelectorAll(".k").forEach(k => { if (idxs.includes(+k.dataset.idx)) k.classList.toggle("pressed", down); });
   if (tab === "tester" && down && !ev.repeat) {
@@ -280,7 +281,7 @@ function onKey(ev, down) {
     idxs.forEach(i => document.querySelector(`.k[data-idx="${i}"]`)?.classList.add("tested"));
     renderTester();
   }
-  if (tab === "typing" && down && ev.key === "Enter" && ev.target === $("tInput")) { ev.preventDefault(); typing.next(); }
+  if (tab === "typing" && down && ev.key === "Enter" && ev.target === $("tInput")) { ev.preventDefault(); if (typing.done) typing.next(); }
 }
 addEventListener("keydown", e => onKey(e, true));
 addEventListener("keyup", e => onKey(e, false));

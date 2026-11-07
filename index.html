@@ -9,7 +9,7 @@
 <title>Hi75C Pro — Key Remapper</title>
 <link rel="icon" href="data:,">
 <link rel="preload" href="fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=202611070440">
+<link rel="stylesheet" href="styles.css?v=202611070500">
 </head>
 <body>
 <header class="top">
@@ -55,7 +55,8 @@
       <button class="tab" type="button" role="tab" data-t="log">Log</button>
     </div>
 
-    <div class="pane" data-p="functions">
+    <div class="panes">
+    <div class="pane active" data-p="functions" role="tabpanel">
       <div class="fx-head">
         <div class="sel-info" id="selInfo"></div>
         <input type="search" id="search" data-i-ph="searchPh" aria-label="Search">
@@ -64,7 +65,7 @@
       <div class="grid" id="grid"></div>
     </div>
 
-    <div class="pane" data-p="lighting" hidden>
+    <div class="pane" data-p="lighting" role="tabpanel" inert>
       <div class="cols">
         <div>
           <div class="form">
@@ -90,7 +91,7 @@
       </div>
     </div>
 
-    <div class="pane" data-p="profiles" hidden>
+    <div class="pane" data-p="profiles" role="tabpanel" inert>
       <div class="cols">
         <div>
           <select id="profileSel" aria-label="Profile"></select>
@@ -108,7 +109,7 @@
       </div>
     </div>
 
-    <div class="pane" data-p="tester" hidden>
+    <div class="pane" data-p="tester" role="tabpanel" inert>
       <div class="tester-head">
         <p class="fine" data-i="testerHint"></p>
         <span class="count" id="testCount"></span>
@@ -117,7 +118,7 @@
       <div class="keylog" id="keyLog"></div>
     </div>
 
-    <div class="pane" data-p="typing" hidden>
+    <div class="pane" data-p="typing" role="tabpanel" inert>
       <div class="typing-head">
         <button id="tNext" type="button" data-i="nextText"></button>
         <span class="tstats" id="tStats"></span>
@@ -127,9 +128,10 @@
       <p class="fine"><span data-i="typingHint"></span> <span data-i="typingCredit"></span> <a href="https://taqtaqa.com" target="_blank" rel="noopener">taqtaqa.com</a></p>
     </div>
 
-    <div class="pane" data-p="log" hidden>
+    <div class="pane" data-p="log" role="tabpanel" inert>
       <pre id="log"></pre>
       <div class="row"><button id="btnClearLog" type="button" data-i="clear"></button><button id="btnCopyLog" type="button" data-i="copy"></button></div>
+    </div>
     </div>
   </section>
 </main>
@@ -147,6 +149,6 @@
   </div>
 </div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="js/app.js?v=202611070440"></script>
+<script type="module" src="js/app.js?v=202611070500"></script>
 </body>
 </html>
