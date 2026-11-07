@@ -78,6 +78,7 @@ const PATCH_STORE = "hi75c-mac-patch";
 let macPatch = (() => { try { return localStorage.getItem(PATCH_STORE); } catch { return null; } })();
 function setMacPatch(v) { macPatch = v; try { v ? localStorage.setItem(PATCH_STORE, v) : localStorage.removeItem(PATCH_STORE); } catch {} }
 const macLocked = () => isMac() && macPatch === "no";
+const wlMac = () => hid.dev.wireless && isMac();           // the 2.4G path only reaches the Windows / Android tables
 
 // Browsers without WebHID (Safari, Firefox, phones) can't talk to the keyboard
 const HAS_HID = "hid" in navigator;
@@ -215,7 +216,8 @@ function useMacLayout() { applyMacPreset(); mode = "win"; layer = 0; refresh(); 
 
 $("btnRead").onclick = async () => {
   if (!hid.dev.cfg) return toast(t("connectFirst"));
-  if (hid.dev.wireless) return toast(t("needCable"));
+  if (wlMac()) return toast(t("macCable"));
+  if (!hid.canWrite()) return toast(t("wlOff"));
   try {
     const { layers, page } = M();
     const read = {}; await hid.exclusively(async () => { for (const c of layers) read[c] = await hid.readKeymap(c, page, KEYS); });
@@ -236,6 +238,7 @@ $("btnRead").onclick = async () => {
 
 $("btnWrite").onclick = () => {
   if (!hid.canWrite()) return toast(hid.dev.cfg ? t("wlOff") : t("connectFirst"));
+  if (wlMac()) return toast(t("macCable"));
   if (macLocked()) return toast(t("macLocked"));
   const m = M(), n = prof()[mode].reduce((a, l) => a + Object.keys(l).length, 0);
   confirmBox(t("writeTitle", { mode: m.name }), t("writeBody", { layers: t(isMac() ? "layersMac" : "layersWin"), n }), () => writeKeymap(m));
@@ -354,6 +357,7 @@ $("lRead").onclick = async () => {
 };
 $("lApply").onclick = async () => {
   if (!hid.canWrite()) return toast(t("wlOff"));
+  if (hid.dev.wireless && light.effect === SELF_DEFINE) return toast(t("sdCable"));
   const b = $("lApply"); b.disabled = true;
   try {
     await hid.exclusively(async () => {
@@ -386,11 +390,12 @@ function renderStatus() {
   $("status").title = on ? `${hid.dev.product.productName} (${hid.dev.product.vendorId.toString(16)}:${hid.dev.product.productId.toString(16)})` : "";
 }
 function updateButtons() {
-  const conn = !!hid.dev.cfg, write = hid.canWrite(), wlTip = conn && !write ? t("wlOff") : "";
-  for (const [id, ok] of [["btnWrite", write && !macLocked()], ["lApply", write], ["lRead", conn], ["btnRead", conn && !hid.dev.wireless]]) {
-    $(id).disabled = !ok; $(id).title = ok ? "" : (!conn ? t("connectFirst") : id === "btnWrite" && write ? t("macLocked") : (wlTip || t("needCable")));
-  }
-  if ($("btnCheckPatch")) { $("btnCheckPatch").disabled = !write; $("btnCheckPatch").title = write ? "" : t("connectFirst"); }
+  const conn = !!hid.dev.cfg, write = hid.canWrite();
+  // why a button is off: not connected → 2.4G check failed → Mac layers over 2.4G → no Mac patch
+  const why = id => !conn ? t("connectFirst") : !write ? t("wlOff") : id !== "lApply" && wlMac() ? t("macCable") : id === "btnWrite" && macLocked() ? t("macLocked") : "";
+  for (const id of ["btnWrite", "lApply", "btnRead"]) { const w = why(id); $(id).disabled = !!w; $(id).title = w; }
+  $("lRead").disabled = !conn; $("lRead").title = conn ? "" : t("connectFirst");
+  if ($("btnCheckPatch")) { const ok = write && !hid.dev.wireless; $("btnCheckPatch").disabled = !ok; $("btnCheckPatch").title = ok ? "" : t(conn ? "needCable" : "connectFirst"); }
   $("btnConnect").disabled = !HAS_HID; $("btnConnect").title = HAS_HID ? "" : t(IS_MOBILE ? "noHidMobile" : "noHidDesktop");
   renderSteps();
   const pending = onKeyboard[mode] !== undefined && onKeyboard[mode] !== snapshot(mode);

@@ -15,7 +15,7 @@ Live: https://ghofransalem.github.io/hi75c-remap/ (GitHub Pages from `main`, no 
 |---|---|
 | `index.html` / `styles.css` | Single page. Stage (mode tabs, layer tabs, keyboard, toolbar) + one wide panel with tabs: Functions, Lighting, Profiles, Key tester, Typing, Mac patch, Log |
 | `js/keys.js` | Key codes, LAYOUT (matrix idx = col*6+row, 90 keys), factory tables WIN/MAC, MODES (`win` page 0, `mac` page 1 layers [0,1]) |
-| `js/device.js` | WebHID: connect/identify (model 0xA3), keymap read/write, Mac write with stock-firmware detection + restore, `checkMacPatch`, lighting config, 2.4G packets. `WIRELESS_WRITE=false` (writes over 2.4G off on purpose) |
+| `js/device.js` | WebHID: connect/identify (model 0xA3), keymap read/write, Mac write with stock-firmware detection + restore, `checkMacPatch`, lighting config, 2.4G packets. 2.4G: model check (cmd 05) + keymap read (cmd 41) on connect → `dev.wlOk`; every 2.4G write is read back and repeated (receiver echo ≠ keyboard ack) |
 | `js/app.js` | UI state/rendering, profiles (localStorage `hi75c-remap-v6`), tester, typing, patch tab, steps strip |
 | `js/i18n.js` | All strings `{en, ar}`; HTML uses `data-i`, `data-i-ph`, `data-i-title` |
 | `js/lighting.js` | Lighting config encode/decode |
@@ -37,11 +37,11 @@ Config read returns flash settings page: `cfg[8+i]` = XDATA `0x0309+i`; **`cfg[3
 - Flash with sinowisp v2.1.0: `sinowisp read|write -d leobog-hi75c-pro file.hex` (61440-byte files only; never write a 64 KB full image).
 
 ## Status (2026-11-07)
-Done and live: Win/Mac tabs, patch detection memory (`hi75c-mac-patch` = yes/no), OS-mode display, Mac patch tab with 5 steps, key tester, typing, disclaimer, wireless writes off, music sync removed.
+Done and live: Win/Mac tabs, patch detection memory (`hi75c-mac-patch` = yes/no), OS-mode display, Mac patch tab with 5 steps, key tester, typing, disclaimer, music sync removed.
 Verified on hardware 2026-11-07 from a fresh Windows PC: real sinowisp backup → step 3 "already has the patch", step 5 "Patch installed", OS mode bytes Mac=2 / iOS=3.
 
 ## Next / open
-1. 2.4G writing (turned off; wireless path uses the page byte as a packet counter — Mac over 2.4G needs separate work).
+1. 2.4G writing back on (2026-11-07, Windows/Android layers + lighting, verified by read-back) — awaiting owner hardware test. Firmware: wireless keymap write 0x0884, read 0x3DA0, header parser 0x07D5 (count-1→0x02E2, seq→0x0D10, chunk nibble→0x0389). Mac over 2.4G would need patch C (chunk 4/5 → CE/D2 in 0x0884, 0x095F, 0x3DA0).
 2. Unknown flash page `0xC800`/`0xCA00` may hold unit-specific data (2.4G pairing) — reason not to ship one firmware image for everyone.
 3. Reddit post / promotion (owner planned).
 

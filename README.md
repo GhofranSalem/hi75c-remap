@@ -14,14 +14,14 @@ Remap keys and control the lighting on the **LEOBOG Hi75C Pro** straight from th
 - Profiles you can export and import as text
 - Key tester: press every key and watch it turn green on the board
 - Typing: try the keyboard on real texts from [Taqtaqa](https://taqtaqa.com) — English quotes in the English interface, Egyptian Arabic in the Arabic one — with live speed and accuracy
-- Works over the USB cable. Writing over the 2.4G receiver is **temporarily turned off** while it's being fixed; you can still connect the receiver, but use the cable to write keymaps and lighting
+- Works over the USB cable or the 2.4G receiver. Over 2.4G the page checks the model first and reads every write back until it matches; Mac / iOS layers, Self-define colors and the firmware patch need the cable
 - English and Arabic interface
 
 ## How to use
 
-1. Plug the keyboard in with the USB cable.
+1. Plug the keyboard in with the USB cable, or plug in its 2.4G receiver and set the switch on the back to 2.4G.
 2. Open the page in **Chrome or Edge** on a desktop computer. Safari and Firefox don't support WebHID.
-3. Click **Connect keyboard** and choose **Gaming Keyboard**.
+3. Click **Connect keyboard** and choose **Gaming Keyboard** (cable) or the 2.4G receiver.
 4. Change keys, then click **Write to keyboard**. Settings are stored on the keyboard itself.
 
 **On a Mac:** the keyboard has separate keymap tables for its Mac/iOS mode (Fn+E). Pick the **Mac / iOS** tab to edit them. Writing them needs a one-time firmware patch (see [Mac mode](#about-mac-mode)); without it, keep the keyboard in Windows mode (Fn+W) and use **Mac layout** on the Windows tab.
@@ -40,7 +40,7 @@ The keyboard (Sinowealth controller, USB `258a:010c`) is configured over HID fea
 | `06 06` | Self-define per-key colors |
 | `06 82` | Device query; byte 13 is the model (`0xA3` = Hi75C Pro) |
 
-Over the 2.4G receiver (USB `3554:fa09`) the same payloads travel as 20-byte output reports with ID `0x13`: `[13][cmd][packets][seq][chunk<<4 | len][14 bytes][checksum]`, and the receiver echoes every packet as its acknowledgement. Keymap is `cmd 01`, config read `cmd 44`, config write `cmd 04`. Writing over 2.4G is switched off in the app for now (`WIRELESS_WRITE` in `js/device.js`).
+Over the 2.4G receiver (USB `3554:fa09`) the same payloads travel as 20-byte output reports with ID `0x13`: `[13][cmd][packets][seq][chunk<<4 | len][14 bytes][checksum]`, and the receiver echoes every packet as its acknowledgement. Keymap write is `cmd 01`, keymap read `cmd 41`, config write `cmd 04`, config read `cmd 44`, device info `cmd 05` (data byte 5 = model). The echo only means the receiver got the packet, not the keyboard, so the page reads every block back over 2.4G and sends it again until it matches.
 
 ## About Mac mode
 
@@ -75,7 +75,7 @@ Without the patch:
 - **Mac only:** keep the keyboard in Windows mode (Fn+W) and click **Mac layout** on the Windows tab. It recreates Mac mode (Win/Alt swapped, media on the F-row, F1–F12 on Fn, Mission Control and Launchpad on F3/F4) with your own changes working.
 - **Android mode** (Fn+Q) reads the Windows table but flips the F-row (media first, F-keys with Fn), and doesn't swap Win/Alt.
 
-Editing the Mac tables over the 2.4G receiver isn't supported yet: the wireless path uses that header byte as a packet counter.
+Editing the Mac tables over the 2.4G receiver isn't supported: the firmware's wireless path only reaches the Windows / Android tables (patched or not). Use the cable for Mac / iOS layers.
 
 ## Code layout
 
@@ -100,7 +100,7 @@ This is an unofficial tool, not affiliated with LEOBOG or AULA, made for educati
 
 ## Safety and privacy
 
-- The page only asks for the Hi75C Pro (`258a:010c`) or its 2.4G receiver (`3554:fa09`). It checks the model ID before it allows any write. Writing over 2.4G is turned off for now.
+- The page only asks for the Hi75C Pro (`258a:010c`) or its 2.4G receiver (`3554:fa09`). It checks the model ID before it allows any write, over the cable and over 2.4G.
 - Only key codes the app knows can be written. Imported profiles are filtered against that list.
 - Everything runs locally in your browser. No server, no analytics, no external requests; fonts are bundled. A strict Content-Security-Policy blocks everything else.
 
