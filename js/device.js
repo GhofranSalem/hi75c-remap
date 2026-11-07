@@ -129,6 +129,14 @@ async function writeMacTables(page, packets) {
   return { ok: true };
 }
 
+// Is the Mac-table patch installed? Write the Mac Default layer back unchanged and see where it lands.
+// Patched: lands in the Mac table (no visible change). Stock: lands in the Windows table, which is restored.
+export async function checkMacPatch() {
+  if (!canWrite()) throw new Error("connect by cable");
+  const buf = new Uint8Array(519); buf.set([0x03, 0, 0x00, 0x01, 0x01, 0x00, 0x02]); buf.set(await readKeymapRaw(0, 1), 7);
+  return writeMacTables(1, new Map([[0, buf]]));
+}
+
 // ---------- lighting config ----------
 // The config read returns the settings page from flash: cfg[8+i] mirrors XDATA 0x0309+i.
 // cfg[35] = XDATA 0x0324 = current OS mode (0 Windows, 1 Android, 2 Mac, 3 iOS; ≥2 uses the Mac tables).

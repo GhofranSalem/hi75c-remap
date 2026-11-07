@@ -57,14 +57,16 @@ A small patch (13 bytes in two places) fixes two firmware bugs:
 
 Page 0 writes and Windows/Android typing behave exactly as before, so LEOBOG ONE keeps working. After the patch, the **Mac / iOS** tab writes the Mac Default and FN1 layers live, over the USB cable.
 
-The repo doesn't ship LEOBOG's firmware. `tools/hi75c_mac_patch.py` patches **your own** dump and refuses anything that isn't the known stock image:
+**Easiest: the "Mac patch" tab on the website** walks you through it with ready-to-copy commands for Windows and macOS. The patch is made in the browser from **your own** firmware backup, which never leaves your computer.
 
-1. Get [sinowisp](https://github.com/carlossless/sinowealth-kb-tool) and dump your firmware with the `leobog-hi75c-pro` profile (`sinowisp read`).
-2. `python3 tools/hi75c_mac_patch.py <your-dump>.hex` → writes `<name>-mac-patch.hex` and `<name>-restore.hex` (61440 bytes each).
-3. `sinowisp write -d leobog-hi75c-pro <name>-mac-patch.hex`
-4. To undo: `sinowisp write -d leobog-hi75c-pro <name>-restore.hex`
+By hand, with [sinowisp](https://github.com/carlossless/sinowealth-kb-tool/releases/latest) (v2.1.0) and Python:
 
-Flash only 61440-byte files. A 64 KB image that includes the bootloader fails verification and leaves the keyboard in bootloader mode until you write the 61440-byte restore file.
+1. Back up your firmware: `sinowisp read -d leobog-hi75c-pro hi75c-backup.hex`
+2. `python3 tools/hi75c_mac_patch.py hi75c-backup.hex` → writes `hi75c-backup-mac-patch.hex` and `hi75c-backup-restore.hex` (61440 bytes each). It refuses anything that isn't the known stock firmware (it ignores the reset-vector bytes sinowisp rewrites).
+3. Flash: `sinowisp write -d leobog-hi75c-pro hi75c-backup-mac-patch.hex`
+4. To undo: `sinowisp write -d leobog-hi75c-pro hi75c-backup-restore.hex`
+
+Flash only 61440-byte files. A 64 KB image that includes the bootloader fails verification and leaves the keyboard in bootloader mode until you write a 61440-byte file.
 
 **Flashing firmware is at your own risk.** The app protects stock keyboards: before writing a Mac table it checks where the write actually landed, and if it hit the Windows table it restores it and stops.
 
@@ -84,6 +86,7 @@ Editing the Mac tables over the 2.4G receiver isn't supported yet: the wireless 
 | `js/lighting.js` | Lighting config encode/decode |
 | `js/i18n.js` | All UI text, English and Arabic |
 | `js/typing.js` | Typing tab |
+| `js/patch.js` | Mac patch tab: checks your firmware backup and builds the patched + restore files in the browser |
 | `js/texts.js` | Typing texts, generated from Taqtaqa by `tools/update-texts.mjs` |
 | `js/app.js` | UI: rendering, profiles, events |
 | `tools/hi75c_mac_patch.py` | One-time firmware patch for the Mac tables |
@@ -91,14 +94,16 @@ Editing the Mac tables over the 2.4G receiver isn't supported yet: the wireless 
 
 No build step: plain ES modules, served as-is by GitHub Pages.
 
+## Disclaimer
+
+This is an unofficial tool, not affiliated with LEOBOG or AULA, made for educational purposes and free to use. It's provided as is, without warranty of any kind. You use it — and especially the firmware patch — at your own risk; the authors aren't liable for any damage to your keyboard, computer or data.
+
 ## Safety and privacy
 
 - The page only asks for the Hi75C Pro (`258a:010c`) or its 2.4G receiver (`3554:fa09`). It checks the model ID before it allows any write. Writing over 2.4G is turned off for now.
 - Only key codes the app knows can be written. Imported profiles are filtered against that list.
 - Everything runs locally in your browser. No server, no analytics, no external requests; fonts are bundled. A strict Content-Security-Policy blocks everything else.
 
-## Disclaimer
-
-Unofficial tool, not affiliated with LEOBOG or AULA. Use at your own risk.
+## License
 
 Code: MIT License (`LICENSE`). Fonts: IBM Plex Sans, IBM Plex Sans Arabic and IBM Plex Mono, under the SIL Open Font License (`fonts/OFL.txt`).

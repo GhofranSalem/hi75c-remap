@@ -9,7 +9,7 @@
 <title>Hi75C Pro — Key Remapper</title>
 <link rel="icon" href="data:,">
 <link rel="preload" href="fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=202611070520">
+<link rel="stylesheet" href="styles.css?v=202611070600">
 </head>
 <body>
 <header class="top">
@@ -53,6 +53,7 @@
       <button class="tab" type="button" role="tab" data-t="profiles" data-i="profiles"></button>
       <button class="tab" type="button" role="tab" data-t="tester" data-i="tabTester"></button>
       <button class="tab" type="button" role="tab" data-t="typing" data-i="tabTyping"></button>
+      <button class="tab" type="button" role="tab" data-t="patch" data-i="tabPatch"></button>
       <button class="tab" type="button" role="tab" data-t="log">Log</button>
     </div>
 
@@ -129,6 +130,14 @@
       <p class="fine"><span data-i="typingHint"></span> <span data-i="typingCredit"></span> <a href="https://taqtaqa.com" target="_blank" rel="noopener">taqtaqa.com</a></p>
     </div>
 
+    <div class="pane" data-p="patch" role="tabpanel" inert>
+      <div class="patch-head">
+        <p class="warn" data-i="patchWarn"></p>
+        <div class="seg small" id="osTabs" role="tablist"></div>
+      </div>
+      <ol class="psteps" id="pSteps"></ol>
+    </div>
+
     <div class="pane" data-p="log" role="tabpanel" inert>
       <pre id="log"></pre>
       <div class="row"><button id="btnClearLog" type="button" data-i="clear"></button><button id="btnCopyLog" type="button" data-i="copy"></button></div>
@@ -137,7 +146,7 @@
   </section>
 </main>
 
-<footer class="foot"><p data-i="footer"></p></footer>
+<footer class="foot"><p data-i="footer"></p><p data-i="disclaimer"></p></footer>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="box">
   <h2 id="mTitle"></h2>
@@ -150,6 +159,6 @@
   </div>
 </div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="js/app.js?v=202611070520"></script>
+<script type="module" src="js/app.js?v=202611070600"></script>
 </body>
 </html>

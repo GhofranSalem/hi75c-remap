@@ -4,6 +4,7 @@ import { CODES, BY_V, CATS, COMBO_KEYS, COMBO_PRESETS, LAYOUT, ACCENT, PHYS, FAC
 import { t, LANG, setLang, applyStatic } from "./i18n.js";
 import * as hid from "./device.js";
 import { createTyping } from "./typing.js";
+import { parseFirmware, makePatch } from "./patch.js";
 import { loadLight, saveLight, buildConfigWrite, effectFromConfig } from "./lighting.js";
 
 const $ = id => document.getElementById(id);
@@ -137,7 +138,7 @@ function renderStage() {
   tabs($("layerTabs"), M().layers.map(i => [i, LAYERS[i]]), layer, i => { layer = i; refresh(); });
   const note = $("modeNote");
   const link = (txt, fn) => { const b = el("button", { type: "button", className: "link", textContent: txt }); b.onclick = fn; return b; };
-  const how = () => el("a", { href: "https://github.com/GhofranSalem/hi75c-remap#the-firmware-patch-one-time-optional", target: "_blank", rel: "noopener", textContent: t("howTo") });
+  const how = () => link(t("howTo"), () => { setTab("patch"); $("workTabs").scrollIntoView({ behavior: "smooth", block: "start" }); });
   if (!isMac()) note.textContent = t("modeWinNote");
   else if (macPatch === "yes") note.textContent = t("modeMacOk");
   else if (macPatch === "no") note.replaceChildren(t("macNoPatch") + " ", link(t("useMacLayout"), useMacLayout), " · ", link(t("patchedRetry"), () => { setMacPatch(null); refresh(); }));
@@ -389,11 +390,82 @@ function updateButtons() {
   for (const [id, ok] of [["btnWrite", write && !macLocked()], ["lApply", write], ["lRead", conn], ["btnRead", conn && !hid.dev.wireless]]) {
     $(id).disabled = !ok; $(id).title = ok ? "" : (!conn ? t("connectFirst") : id === "btnWrite" && write ? t("macLocked") : (wlTip || t("needCable")));
   }
+  if ($("btnCheckPatch")) { $("btnCheckPatch").disabled = !write; $("btnCheckPatch").title = write ? "" : t("connectFirst"); }
   $("btnConnect").disabled = !HAS_HID; $("btnConnect").title = HAS_HID ? "" : t(IS_MOBILE ? "noHidMobile" : "noHidDesktop");
   renderSteps();
   const pending = onKeyboard[mode] !== undefined && onKeyboard[mode] !== snapshot(mode);
   $("pending").hidden = !pending; $("btnWrite").classList.toggle("has-pending", pending);
   if (pending) $("btnWrite").title = t("pendingTitle");
+}
+
+// ======================= Mac patch tab =======================
+const SINOWISP = "https://github.com/carlossless/sinowealth-kb-tool/releases/download/v2.1.0/";
+const OS = {
+  win: { name: "Windows", file: "sinowisp-x86_64-pc-windows-msvc-v2.1.0.tar.gz", run: ".\\sinowisp.exe", intro: "ps1win",
+         setup: f => `cd $HOME\\Downloads\ntar -xzf ${f}` },
+  mac: { name: "macOS", file: "sinowisp-x86_64-apple-darwin-v2.1.0.tar.gz", run: "./sinowisp", intro: "ps1mac", note: "ps1macNote",
+         setup: f => `cd ~/Downloads\ntar -xzf ${f}\nxattr -c sinowisp` },
+};
+let os = /Mac/i.test(navigator.userAgentData?.platform || navigator.platform || navigator.userAgent) ? "mac" : "win";
+let patchFiles = null, patchMsg = null;            // result of step 3
+
+function cmd(text) {
+  const b = el("button", { type: "button", className: "quiet copy", textContent: t("copyCmd") });
+  b.onclick = () => copy(text);
+  return el("div", { className: "cmd" }, el("pre", { textContent: text }), b);
+}
+function renderPatch() {
+  tabs($("osTabs"), Object.entries(OS).map(([k, o]) => [k, o.name]), os, k => { os = k; renderPatch(); });
+  const o = OS[os], dev = "-d leobog-hi75c-pro";
+  const step = (title, ...kids) => el("li", {}, el("h4", { textContent: title }), ...kids);
+  const p = k => el("p", { className: "fine", textContent: t(k) });
+
+  const drop = el("label", { className: "drop", tabIndex: 0 }, el("span", { textContent: t("dropHere") }));
+  const input = el("input", { type: "file", accept: ".hex,.bin" }); input.hidden = true; drop.append(input);
+  input.onchange = () => input.files[0] && handleBackup(input.files[0]);
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
+  drop.ondragleave = () => drop.classList.remove("over");
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); e.dataTransfer.files[0] && handleBackup(e.dataTransfer.files[0]); };
+  const result = el("div", { className: "presult" });
+  if (patchMsg) result.append(el("p", { className: patchMsg.ok ? "ok-text" : "warn", textContent: t(patchMsg.key) }));
+  if (patchFiles) result.append(el("div", { className: "row" },
+    ...[["pPatched", "hi75c-mac-patch.hex", patchFiles.patched], ["pRestore", "hi75c-restore.hex", patchFiles.restore]].map(([k, name, data]) => {
+      const a = el("a", { className: "btn" + (k === "pPatched" ? " write" : ""), download: name, textContent: `${t(k)} — ${name}` });
+      a.href = URL.createObjectURL(new Blob([data], { type: "text/plain" })); return a;
+    })));
+
+  const check = el("button", { type: "button", className: "write", id: "btnCheckPatch", textContent: t("checkPatch") });
+  check.disabled = !hid.canWrite(); check.title = check.disabled ? t("connectFirst") : "";
+  check.onclick = checkPatch;
+
+  $("pSteps").replaceChildren(
+    step(t("ps1t"), p(o.intro), el("div", { className: "row" }, Object.assign(el("a", { className: "btn", href: SINOWISP + o.file, rel: "noopener", textContent: `${t("download")} sinowisp (${o.name})` }))),
+         cmd(o.setup(o.file)), ...(o.note ? [p(o.note)] : [])),
+    step(t("ps2t"), p("ps2"), cmd(`${o.run} read ${dev} hi75c-backup.hex`)),
+    step(t("ps3t"), p("ps3"), drop, result),
+    step(t("ps4t"), p("ps4"), cmd(`${o.run} write ${dev} hi75c-mac-patch.hex`), p("ps4undo"), cmd(`${o.run} write ${dev} hi75c-restore.hex`)),
+    step(t("ps5t"), p("ps5"), el("div", { className: "row" }, check)),
+  );
+}
+async function handleBackup(file) {
+  patchFiles = null;
+  try {
+    const r = await makePatch(parseFirmware(await file.arrayBuffer()));
+    if (r.status === "ok") { patchFiles = r; patchMsg = { ok: true, key: "pOk" }; }
+    else patchMsg = { ok: r.status === "already", key: r.status === "already" ? "pAlready" : "pUnknown" };
+    log(`firmware file ${file.name}: ${r.status}`);
+  } catch (e) { patchMsg = { ok: false, key: "pBadFile" }; log("firmware file error: " + e.message); }
+  renderPatch();
+}
+async function checkPatch() {
+  const b = $("btnCheckPatch"); b.disabled = true;
+  try {
+    const r = await hid.exclusively(hid.checkMacPatch);
+    if (r.ok) { setMacPatch("yes"); toast(t("checkOk")); confirmBox(t("checkPatch"), t("checkOk"), null); }
+    else { setMacPatch("no"); confirmBox(t("checkPatch"), t(r.restored ? "checkNo" : "patchBodyBad"), null); }
+    renderStage(); updateButtons();
+  } catch (e) { log("patch check error: " + e.message); toast(t("readFail")); }
+  renderPatch();
 }
 
 // ======================= log / modal / toast =======================
@@ -436,7 +508,7 @@ function refresh() {
 }
 function relabel() {
   $("btnLang").textContent = LANG === "en" ? "عربي" : "English";
-  renderStatus(); renderLight(); typing.setLang(LANG); refresh(); renderTester();
+  renderStatus(); renderLight(); typing.setLang(LANG); renderPatch(); refresh(); renderTester();
 }
 $("btnLang").onclick = () => { setLang(LANG === "en" ? "ar" : "en"); relabel(); };
 $("search").oninput = renderGrid;

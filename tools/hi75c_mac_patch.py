@@ -15,11 +15,15 @@ Patch v2 (13 bytes, two spots):
     (0xD000 for Windows/Android, 0xD200 for Mac/iOS). Windows/Android behaviour is unchanged.
 
 Usage:  python3 hi75c_mac_patch.py dump.hex      (or dump.bin)
+(The website's "Mac patch" tab does the same thing in the browser.)
 """
 import hashlib, os, sys
 
 SIZE = 61440                      # firmware area 0x0000-0xEFFF (0xF000+ is the bootloader: never written)
-STOCK_SHA256 = "4a899507249a927b82b0a45d457485869da4f7a12b6ddd33a972dfc5508f8971"
+# SHA-256 of the stock firmware with the bytes sinowisp rewrites on read/write zeroed
+# (reset vector 0x0001-0x0002 and the jump at 0xEFFB-0xEFFF), so any sinowisp dump matches.
+STOCK_SHA256 = "97baf1b32ba3769ff059f274c9862b887a4f2027d17e70b13018e32441b01750"
+VOLATILE = [1, 2, 0xEFFB, 0xEFFC, 0xEFFD, 0xEFFE, 0xEFFF]
 PATCHES = [  # (address, stock bytes, patched bytes)
     (0x04DC, bytes.fromhex("02056c"), bytes.fromhex("0204ee")),
     (0x384B, bytes.fromhex("900309e07f0025e0feef2400f582"), bytes.fromhex("900324e0c39402e4f582b33333fe")),
@@ -71,7 +75,10 @@ def main():
     for (a, o, n), done in zip(PATCHES, state):   # undo any older patch to get back to stock
         if done:
             fw[a:a + len(o)] = o
-    if hashlib.sha256(fw).hexdigest() != STOCK_SHA256:
+    norm = bytearray(fw)
+    for i in VOLATILE:
+        norm[i] = 0
+    if hashlib.sha256(norm).hexdigest() != STOCK_SHA256:
         sys.exit("This dump does not match the known Hi75C Pro stock firmware. Not patching.\n"
                  "(Different firmware version, a different keyboard, or a bad read.)")
     save_hex(base + "-restore.hex", fw)
