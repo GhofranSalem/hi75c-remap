@@ -64,6 +64,14 @@ button.write{background:var(--brass);color:#1c1303;border-color:var(--brass);fon
 /* ---------- stage (hero) ---------- */
 main{max-width:1440px;margin:0 auto;padding:clamp(16px,3vw,32px) clamp(16px,4vw,40px)}
 .stage{display:flex;flex-direction:column;align-items:center;gap:10px;padding-bottom:28px;border-bottom:1px solid var(--seam)}
+/* first steps: same height whatever it shows, so nothing below moves */
+.steps{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;min-height:2.2em;align-items:center;margin-bottom:4px}
+.step{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.step b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1px solid var(--seam);font-size:11px;font-weight:600;color:var(--text)}
+.step.done{color:var(--ok)}
+.step.done b{background:var(--ok);border-color:var(--ok);color:#06210f}
+.steps-warn{margin:0;max-width:80ch;text-align:center;font-size:13px;color:var(--brass)}
+button.link{background:none;border:none;padding:0;color:var(--brass);text-decoration:underline;font:inherit;cursor:pointer}
 .note,.hint{margin:0;max-width:96ch;text-align:center;color:var(--muted);font-size:13px}
 .note{min-height:1.6em}
 .hint{min-height:1.6em;margin-bottom:6px}
@@ -188,6 +196,9 @@ textarea{height:200px;font:12px/1.5 "Plex Mono",ui-monospace,monospace;direction
   .k .orig{display:none}
   .cols,.fx-head{grid-template-columns:1fr}
   .note,.hint{min-height:3.2em}            /* texts wrap differently per tab: keep the keyboard still */
+  .note{min-height:4.8em}
+  .steps{min-height:5.4em;gap:4px 12px}
+  .step{font-size:12px}
   .seg.tabs{flex-wrap:wrap;width:auto;border-radius:16px}
   .ttext{font-size:19px;padding:14px 16px}
   .tstats{margin-inline-start:0;width:100%}

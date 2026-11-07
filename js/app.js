@@ -71,6 +71,17 @@ async function detectOsMode(switchTab) {
 }
 addEventListener("focus", () => detectOsMode(false));       // user may have pressed Fn+W/E… on the keyboard
 
+// Firmware patch for the Mac tables: "yes" after a Mac write verified, "no" after one landed in the Windows table.
+// Remembered in this browser (the keyboard has no serial number to tell units apart).
+const PATCH_STORE = "hi75c-mac-patch";
+let macPatch = (() => { try { return localStorage.getItem(PATCH_STORE); } catch { return null; } })();
+function setMacPatch(v) { macPatch = v; try { v ? localStorage.setItem(PATCH_STORE, v) : localStorage.removeItem(PATCH_STORE); } catch {} }
+const macLocked = () => isMac() && macPatch === "no";
+
+// Browsers without WebHID (Safari, Firefox, phones) can't talk to the keyboard
+const HAS_HID = "hid" in navigator;
+const IS_MOBILE = !!navigator.userAgentData?.mobile || /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+
 // What the keyboard holds, as far as we know (after a read or write). Drives the "unsaved changes" dot.
 const onKeyboard = {};
 const snapshot = m => JSON.stringify(prof()[m]);
@@ -125,8 +136,12 @@ function renderStage() {
   tabs($("modeTabs"), MODES.map(m => [m.id, m.name]), mode, id => { mode = id; if (!M().layers.includes(layer)) layer = 0; refresh(); });
   tabs($("layerTabs"), M().layers.map(i => [i, LAYERS[i]]), layer, i => { layer = i; refresh(); });
   const note = $("modeNote");
-  if (isMac()) note.replaceChildren(t("modeMacNote") + " ", el("a", { href: "https://github.com/GhofranSalem/hi75c-remap#the-firmware-patch-one-time-optional", target: "_blank", rel: "noopener", textContent: t("howTo") }));
-  else note.textContent = t("modeWinNote");
+  const link = (txt, fn) => { const b = el("button", { type: "button", className: "link", textContent: txt }); b.onclick = fn; return b; };
+  const how = () => el("a", { href: "https://github.com/GhofranSalem/hi75c-remap#the-firmware-patch-one-time-optional", target: "_blank", rel: "noopener", textContent: t("howTo") });
+  if (!isMac()) note.textContent = t("modeWinNote");
+  else if (macPatch === "yes") note.textContent = t("modeMacOk");
+  else if (macPatch === "no") note.replaceChildren(t("macNoPatch") + " ", link(t("useMacLayout"), useMacLayout), " · ", link(t("patchedRetry"), () => { setMacPatch(null); refresh(); }));
+  else note.replaceChildren(t("modeMacNote") + " ", how(), " · " + t("noPatchQ") + " ", link(t("useMacLayout"), useMacLayout));
   $("layerHint").textContent = t(["hintDefault", "hintFn1", "hintFn2"][layer]);
   $("btnMacPreset").hidden = isMac();
 }
@@ -186,13 +201,16 @@ $("btnResetKey").onclick = () => { if (selected === null) return toast(t("select
 $("btnResetLayer").onclick = () => { prof()[mode][layer] = {}; changed(); refresh(); };
 $("btnResetAll").onclick = () => confirmBox(t("resetAllQ", { mode: M().name }), t("resetAllBody"), () => { prof()[mode] = [{}, {}, {}, {}]; changed(); refresh(); });
 // Without the firmware patch: recreate Mac mode inside Windows mode (Win/Alt swapped, media on the F-row, F1–F12 on Fn).
-$("btnMacPreset").onclick = () => {
+function applyMacPreset() {
   const [d, f] = prof().win, [base, fn] = FACTORY.win;
   d[11] = MOD(0xE2); d[17] = MOD(0xE3); d[53] = MOD(0xE7);
   for (const i of FROW) { d[i] = fn[i] >>> 0; f[i] = base[i] >>> 0; }
   d[24] = CON(0x29F); d[30] = CON(0x2A0);                   // F3 Mission Control, F4 Launchpad
-  changed(); refresh(); toast(t("macPresetOk"));
-};
+  changed();
+}
+$("btnMacPreset").onclick = () => { applyMacPreset(); refresh(); toast(t("macPresetOk")); };
+// From the Mac tab without the patch: move to the Windows tab with the Mac layout applied
+function useMacLayout() { applyMacPreset(); mode = "win"; layer = 0; refresh(); toast(t("macLayoutMoved")); }
 
 $("btnRead").onclick = async () => {
   if (!hid.dev.cfg) return toast(t("connectFirst"));
@@ -217,6 +235,7 @@ $("btnRead").onclick = async () => {
 
 $("btnWrite").onclick = () => {
   if (!hid.canWrite()) return toast(hid.dev.cfg ? t("wlOff") : t("connectFirst"));
+  if (macLocked()) return toast(t("macLocked"));
   const m = M(), n = prof()[mode].reduce((a, l) => a + Object.keys(l).length, 0);
   confirmBox(t("writeTitle", { mode: m.name }), t("writeBody", { layers: t(isMac() ? "layersMac" : "layersWin"), n }), () => writeKeymap(m));
 };
@@ -226,8 +245,8 @@ async function writeKeymap(m) {
     const chunks = isMac() ? m.layers : [0, 1, 2, 3];           // Mac: FN2/Tap are shared tables, written from the Windows tab
     const packets = new Map(chunks.map(c => [c, hid.keymapPacket(c, m.page, Array.from({ length: KEYS }, (_, i) => valueAt(i, c, m.id)))]));
     const r = await hid.exclusively(() => hid.writeKeymap(m.page, packets));
-    if (r.ok) { onKeyboard[m.id] = snapshot(m.id); toast(t("writeOk")); log("write OK"); }
-    else if (r.stock) { toast(t("writeFail")); confirmBox(t("patchTitle"), t(r.restored ? "patchBody" : "patchBodyBad"), null); }
+    if (r.ok) { onKeyboard[m.id] = snapshot(m.id); if (m.page) { setMacPatch("yes"); renderStage(); } toast(t("writeOk")); log("write OK"); }
+    else if (r.stock) { setMacPatch("no"); refresh(); toast(t("writeFail")); confirmBox(t("patchTitle"), t(r.restored ? "patchBody" : "patchBodyBad"), null); }
   } catch (e) { log("write error: " + e.message); toast(t("writeFail")); }
   b.firstChild.textContent = t("write"); updateButtons();
 }
@@ -350,7 +369,7 @@ $("lApply").onclick = async () => {
 
 // ======================= connection =======================
 $("btnConnect").onclick = async () => {
-  if (!("hid" in navigator)) return toast(t("needChrome"));
+  if (!HAS_HID) return toast(t(IS_MOBILE ? "noHidMobile" : "noHidDesktop"));
   try {
     const r = await hid.connect();
     if (r.wrongModel) toast(t("wrongModel"));
@@ -367,9 +386,11 @@ function renderStatus() {
 }
 function updateButtons() {
   const conn = !!hid.dev.cfg, write = hid.canWrite(), wlTip = conn && !write ? t("wlOff") : "";
-  for (const [id, ok] of [["btnWrite", write], ["lApply", write], ["lRead", conn], ["btnRead", conn && !hid.dev.wireless]]) {
-    $(id).disabled = !ok; $(id).title = ok ? "" : (conn ? (wlTip || t("needCable")) : t("connectFirst"));
+  for (const [id, ok] of [["btnWrite", write && !macLocked()], ["lApply", write], ["lRead", conn], ["btnRead", conn && !hid.dev.wireless]]) {
+    $(id).disabled = !ok; $(id).title = ok ? "" : (!conn ? t("connectFirst") : id === "btnWrite" && write ? t("macLocked") : (wlTip || t("needCable")));
   }
+  $("btnConnect").disabled = !HAS_HID; $("btnConnect").title = HAS_HID ? "" : t(IS_MOBILE ? "noHidMobile" : "noHidDesktop");
+  renderSteps();
   const pending = onKeyboard[mode] !== undefined && onKeyboard[mode] !== snapshot(mode);
   $("pending").hidden = !pending; $("btnWrite").classList.toggle("has-pending", pending);
   if (pending) $("btnWrite").title = t("pendingTitle");
@@ -398,6 +419,15 @@ $("modal").onclick = e => { if (e.target === $("modal")) closeModal(); };
 $("mCopy").onclick = () => copy($("mText").value);
 function copy(s) { navigator.clipboard.writeText(s).then(() => toast(t("copied")), () => toast(t("copyBlocked"))); }
 function toast(m) { const e = $("toast"); e.textContent = m; e.classList.add("show"); clearTimeout(e._h); e._h = setTimeout(() => e.classList.remove("show"), 2400); }
+
+// ======================= first steps =======================
+function renderSteps() {
+  const box = $("steps");
+  if (!HAS_HID) { box.replaceChildren(el("p", { className: "steps-warn", textContent: t(IS_MOBILE ? "noHidMobile" : "noHidDesktop") })); return; }
+  const conn = !!hid.dev.product;
+  box.replaceChildren(...[[conn ? "step1done" : "step1", conn], ["step2", false], ["step3", false]].map(([k, done], i) =>
+    el("span", { className: "step" + (done ? " done" : "") }, el("b", { textContent: done ? "✓" : String(i + 1) }), t(k))));
+}
 
 // ======================= init =======================
 function refresh() {
