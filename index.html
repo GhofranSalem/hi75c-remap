@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; media-src 'self' blob:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="description" content="Remap keys and control lighting on the LEOBOG Hi75C Pro from your browser — no driver install. Works on Mac, Windows and Linux in Chrome or Edge.">
 <title>Hi75C Pro — Key Remapper</title>
 <link rel="icon" href="data:,">
 <link rel="preload" href="fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=202611070230">
+<link rel="stylesheet" href="styles.css?v=202611070320">
 </head>
 <body>
 <header class="top">
@@ -78,16 +78,6 @@
         <button class="write" id="lApply" type="button" data-i="applyLight" disabled></button>
       </div>
 
-      <h2 class="sub" data-i="music">Music sync</h2>
-      <div class="form">
-        <label for="mSrc" data-i="audio"></label>
-        <select id="mSrc"><option value="tab" data-i="srcTab"></option><option value="mic" data-i="srcMic"></option></select>
-        <label for="mStyle" data-i="style"></label>
-        <select id="mStyle"><option value="bars" data-i="stBars"></option><option value="pulse" data-i="stPulse"></option><option value="wave" data-i="stWave"></option><option value="rain" data-i="stRain"></option><option value="spectrum" data-i="stSpectrum"></option></select>
-        <label for="mGain" data-i="sensitivity"></label><input type="range" id="mGain" min="0.5" max="4" step="0.1" value="1.6">
-      </div>
-      <div class="row"><button class="write" id="mStart" type="button" data-i="start" disabled></button></div>
-      <p class="fine" data-i="musicHint"></p>
     </section>
 
     <div class="side">
@@ -130,6 +120,6 @@
   </div>
 </div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="js/app.js?v=202611070230"></script>
+<script type="module" src="js/app.js?v=202611070320"></script>
 </body>
 </html>

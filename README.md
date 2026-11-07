@@ -7,10 +7,10 @@ Remap keys and control the lighting on the **LEOBOG Hi75C Pro** straight from th
 ## What it does
 
 - Remap any key on three layers: Default, FN1 (hold Fn) and FN2 (hold a key you set to FN2)
+- Separate keymaps for Windows/Android and Mac/iOS mode (Mac needs a one-time [firmware patch](#the-firmware-patch-one-time-optional)); the page shows which mode the keyboard is in
 - Key combinations on a single key (for example ⇧⌘4 for a Mac screenshot), with ready-made shortcuts
 - Keyboard functions too: media, Bluetooth slots, OS mode, Win lock, lighting controls
 - Lighting: the 14 built-in effects with brightness, speed and color, plus Self-define (paint each key)
-- Music sync: the keyboard reacts to a browser tab, your screen audio or the microphone
 - Profiles you can export and import as text
 - Works over the USB cable. Writing over the 2.4G receiver is **temporarily turned off** while it's being fixed; you can still connect the receiver, but use the cable to write keymaps and lighting
 - English and Arabic interface
@@ -36,10 +36,7 @@ The keyboard (Sinowealth controller, USB `258a:010c`) is configured over HID fea
 | `06 83 <chunk> 00 01 <page> 00 02` | Read the keymap back (same layout). Page 0 = Windows/Android tables, page 1 = Mac/iOS tables |
 | `06 84` / `06 04` | Read / write the lighting config (effect, brightness, speed, color) |
 | `06 06` | Self-define per-key colors |
-| `06 08` | Direct per-key colors (used for music sync) |
 | `06 82` | Device query; byte 13 is the model (`0xA3` = Hi75C Pro) |
-
-The direct-color format matches OpenRGB's Sinowealth 010C controller.
 
 Over the 2.4G receiver (USB `3554:fa09`) the same payloads travel as 20-byte output reports with ID `0x13`: `[13][cmd][packets][seq][chunk<<4 | len][14 bytes][checksum]`, and the receiver echoes every packet as its acknowledgement. Keymap is `cmd 01`, config read `cmd 44`, config write `cmd 04`. Writing over 2.4G is switched off in the app for now (`WIRELESS_WRITE` in `js/device.js`).
 
@@ -83,7 +80,6 @@ Editing the Mac tables over the 2.4G receiver isn't supported yet: the wireless 
 | `js/keys.js` | Key codes, physical layout, factory tables, OS modes |
 | `js/device.js` | WebHID protocol: cable + 2.4G, keymap, lighting, Mac-table write check |
 | `js/lighting.js` | Lighting config encode/decode |
-| `js/music.js` | Music sync (audio → per-key colors) |
 | `js/i18n.js` | All UI text, English and Arabic |
 | `js/app.js` | UI: rendering, profiles, events |
 | `tools/hi75c_mac_patch.py` | One-time firmware patch for the Mac tables |
@@ -95,7 +91,6 @@ No build step: plain ES modules, served as-is by GitHub Pages.
 - The page only asks for the Hi75C Pro (`258a:010c`) or its 2.4G receiver (`3554:fa09`). It checks the model ID before it allows any write. Writing over 2.4G is turned off for now.
 - Only key codes the app knows can be written. Imported profiles are filtered against that list.
 - Everything runs locally in your browser. No server, no analytics, no external requests; fonts are bundled. A strict Content-Security-Policy blocks everything else.
-- Audio for music sync is analysed in the page and never recorded or sent anywhere.
 
 ## Disclaimer
 

@@ -4,7 +4,6 @@ import { CODES, BY_V, CATS, COMBO_KEYS, COMBO_PRESETS, LAYOUT, ACCENT, PHYS, FAC
 import { t, LANG, setLang, applyStatic } from "./i18n.js";
 import * as hid from "./device.js";
 import { loadLight, saveLight, buildConfigWrite, effectFromConfig } from "./lighting.js";
-import * as music from "./music.js";
 
 const $ = id => document.getElementById(id);
 const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
@@ -308,25 +307,6 @@ $("lApply").onclick = async () => {
   updateButtons();
 };
 
-// ======================= music sync =======================
-function previewColors(cols) { document.querySelectorAll(".k").forEach(k => { const c = cols[+k.dataset.idx]; k.style.background = c && (c[0] || c[1] || c[2]) ? `rgb(${c})` : ""; }); }
-function musicStopped() { $("mStart").textContent = t("start"); renderKB(); log("music sync stopped"); }
-$("mStart").onclick = async () => {
-  if (music.isPlaying()) { music.stop(); return musicStopped(); }
-  if (hid.dev.wireless) return toast(t("needCable"));
-  try {
-    await music.start({
-      source: $("mSrc").value, getStyle: () => $("mStyle").value, getGain: () => +$("mGain").value,
-      draw: cols => { hid.sendDirect(cols).catch(e => { log("direct error: " + e.message); music.stop(); musicStopped(); }); previewColors(cols); },
-      onEnded: musicStopped,
-    });
-    $("mStart").textContent = t("stop"); log("music sync started");
-  } catch (e) {
-    if (e.message === "no-audio") return toast(t("noAudio"));
-    log("audio error: " + e.message); toast(t("audioFail"));
-  }
-};
-
 // ======================= connection =======================
 $("btnConnect").onclick = async () => {
   if (!("hid" in navigator)) return toast(t("needChrome"));
@@ -337,7 +317,7 @@ $("btnConnect").onclick = async () => {
     await detectOsMode(true);
   } catch (e) { log("connect error: " + e.message); toast(t("connectFail")); }
 };
-hid.init({ onLog: s => log(s), onDisconnect: () => { if (music.isPlaying()) { music.stop(); musicStopped(); } for (const k in onKeyboard) delete onKeyboard[k]; osMode = null; renderStatus(); updateButtons(); } });
+hid.init({ onLog: s => log(s), onDisconnect: () => { for (const k in onKeyboard) delete onKeyboard[k]; osMode = null; renderStatus(); updateButtons(); } });
 function renderStatus() {
   const on = !!hid.dev.product;
   $("dot").classList.toggle("on", on);
@@ -346,7 +326,7 @@ function renderStatus() {
 }
 function updateButtons() {
   const conn = !!hid.dev.cfg, write = hid.canWrite(), wlTip = conn && !write ? t("wlOff") : "";
-  for (const [id, ok] of [["btnWrite", write], ["lApply", write], ["mStart", conn && !hid.dev.wireless], ["lRead", conn], ["btnRead", conn && !hid.dev.wireless]]) {
+  for (const [id, ok] of [["btnWrite", write], ["lApply", write], ["lRead", conn], ["btnRead", conn && !hid.dev.wireless]]) {
     $(id).disabled = !ok; $(id).title = ok ? "" : (conn ? (wlTip || t("needCable")) : t("connectFirst"));
   }
   const pending = onKeyboard[mode] !== undefined && onKeyboard[mode] !== snapshot(mode);
@@ -391,7 +371,6 @@ function refresh() {
 function relabel() {
   $("btnLang").textContent = LANG === "en" ? "عربي" : "English";
   $("btnTest").textContent = t(testMode ? "testStop" : "testMode");
-  $("mStart").textContent = t(music.isPlaying() ? "stop" : "start");
   renderStatus(); renderLight(); refresh();
 }
 $("btnLang").onclick = () => { setLang(LANG === "en" ? "ar" : "en"); relabel(); };

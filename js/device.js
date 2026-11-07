@@ -4,7 +4,7 @@
 // Cable: HID feature report 6, 520 bytes incl. id. Header after the id:
 //   [cmd][chunk][00][01][page][len lo][len hi]
 //   03/83 keymap write/read (chunk 0 Default, 1 FN1, 2 FN2, 3 Tap; page 0 Windows/Android, 1 Mac/iOS)
-//   04/84 config write/read (lighting)   06 self-define colors   08 direct colors   82 device query (byte 13 = model)
+//   04/84 config write/read (lighting)   06 self-define colors   82 device query (byte 13 = model)
 // 2.4G: output/input report 0x13, 20 bytes [13][cmd][packets][seq][chunk<<4|len][14 data][checksum];
 //   the receiver echoes every packet as its ack. cmd 01 keymap, 04 config write, 44 config read.
 
@@ -24,12 +24,12 @@ let log = () => {};
 export const dev = { devices: [], cfg: null, wireless: false, product: null };
 export const canWrite = () => !!dev.cfg && (!dev.wireless || WIRELESS_WRITE);
 
-// ---------- channel lock: keymap/lighting transfers pause music frames ----------
-let exclusive = false, sendingFrame = false;
-export async function exclusively(fn) {
-  exclusive = true;
-  while (sendingFrame) await sleep(10);
-  try { return await fn(); } finally { exclusive = false; }
+// ---------- one transfer at a time (e.g. the OS-mode check on window focus must not cut into a write) ----------
+let queue = Promise.resolve();
+export function exclusively(fn) {
+  const run = queue.then(fn, fn);
+  queue = run.catch(() => {});
+  return run;
 }
 
 // ---------- connect ----------
@@ -147,15 +147,6 @@ export async function writeSelfDefine(keys) {               // keys: {index: [r,
   const out = new Uint8Array(519); out.set([0x06, 0, 0, 0x01, 0, 0x7a, 0x01]);
   for (let i = 0; i < 126; i++) { const c = keys[i] || [0, 0, 0]; out[7 + i] = c[0]; out[133 + i] = c[1]; out[259 + i] = c[2]; }
   await dev.cfg.sendFeatureReport(6, out); await sleep(80);
-}
-
-// ---------- direct colors (music sync); the keyboard falls back to its own effect ~1 s after the last frame ----------
-export async function sendDirect(cols) {                    // cols: Array(126) of [r,g,b] | null
-  if (!dev.cfg || dev.wireless || sendingFrame || exclusive) return;
-  const out = new Uint8Array(519); out.set([0x08, 0, 0, 0x01, 0, 0x7a, 0x01]);
-  for (let i = 0; i < 126; i++) { const c = cols[i] || [0, 0, 0]; out.set(c, 7 + 3 * i); }
-  sendingFrame = true;
-  try { await dev.cfg.sendFeatureReport(6, out); } finally { sendingFrame = false; }
 }
 
 // ---------- 2.4G receiver ----------
