@@ -24,6 +24,7 @@ const S = {
   ps1t: { en: "Get the flashing tool (sinowisp)", ar: "نزّل أداة الفلاش (sinowisp)" },
   ps1win: { en: "Download it and keep it in your Downloads folder. Then open PowerShell (Start menu → type PowerShell) and paste:", ar: "نزّلها وسيبها في فولدر Downloads. وبعدين افتح PowerShell (من Start اكتب PowerShell) والصق:" },
   ps1mac: { en: "Download it and keep it in your Downloads folder. Then open Terminal (Spotlight → Terminal) and paste:", ar: "نزّلها وسيبها في فولدر Downloads. وبعدين افتح Terminal (من Spotlight اكتب Terminal) والصق:" },
+  ps1quiet: { en: "These commands print nothing when they work — a new empty prompt line means it's done.", ar: "الأوامر دي مش بتكتب حاجة لما تشتغل صح — لو ظهر سطر جديد فاضي يبقى خلصت." },
   ps1macNote: { en: "On Apple-silicon Macs, macOS may offer to install Rosetta: accept. If it asks for Input Monitoring, allow Terminal in System Settings → Privacy & Security.", ar: "على أجهزة الماك بشريحة Apple، ممكن الماك يطلب تسطيب Rosetta: وافق. ولو طلب Input Monitoring، اسمح للـ Terminal من System Settings → Privacy & Security." },
   download: { en: "Download", ar: "تحميل" },
   ps2t: { en: "Back up your firmware", ar: "اعمل نسخة من الفيرموير بتاعك" },

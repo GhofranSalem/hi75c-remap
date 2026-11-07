@@ -440,7 +440,7 @@ function renderPatch() {
 
   $("pSteps").replaceChildren(
     step(t("ps1t"), p(o.intro), el("div", { className: "row" }, Object.assign(el("a", { className: "btn", href: SINOWISP + o.file, rel: "noopener", textContent: `${t("download")} sinowisp (${o.name})` }))),
-         cmd(o.setup(o.file)), ...(o.note ? [p(o.note)] : [])),
+         cmd(o.setup(o.file)), p("ps1quiet"), ...(o.note ? [p(o.note)] : [])),
     step(t("ps2t"), p("ps2"), cmd(`${o.run} read ${dev} hi75c-backup.hex`)),
     step(t("ps3t"), p("ps3"), drop, result),
     step(t("ps4t"), p("ps4"), cmd(`${o.run} write ${dev} hi75c-mac-patch.hex`), p("ps4undo"), cmd(`${o.run} write ${dev} hi75c-restore.hex`)),

@@ -26,7 +26,7 @@ UI invariants: panes share one grid cell (panel height = tallest pane, patch pan
 
 ## Protocol (cable, feature report 6, 519 B after id)
 Header `[cmd][chunk][00][01][page][len lo][len hi=02]`. `03`/`83` keymap write/read (chunk 0 Default, 1 FN1, 2 FN2, 3 Tap; page 0 Win/Android, 1 Mac/iOS). `04`/`84` config (lighting), `06` self-define colors, `82` query (byte 13 model).
-Config read returns flash settings page: `cfg[8+i]` = XDATA `0x0309+i`; **`cfg[35]` = OS mode** (0 Win, 1 Android, 2 Mac, 3 iOS — 2 vs 3 order unconfirmed on hardware).
+Config read returns flash settings page: `cfg[8+i]` = XDATA `0x0309+i`; **`cfg[35]` = OS mode** (0 Win, 1 Android, 2 Mac, 3 iOS — confirmed on hardware 2026-11-07).
 
 ## Firmware facts (stock, from RE)
 - Flash tables: Win Default `0xCC00`, Win Fn `0xD000`, Mac Default `0xCE00`, Mac Fn `0xD200`, FN2 `0xD400` (shared), Tap `0xD800`. OS mode var XDATA `0x0324`; readers pick Mac tables with `SUBB A,#2; JC` at `0x388C`, `0x39D7`, `0x3C5C`.
@@ -38,13 +38,12 @@ Config read returns flash settings page: `cfg[8+i]` = XDATA `0x0309+i`; **`cfg[3
 
 ## Status (2026-11-07)
 Done and live: Win/Mac tabs, patch detection memory (`hi75c-mac-patch` = yes/no), OS-mode display, Mac patch tab with 5 steps, key tester, typing, disclaimer, wireless writes off, music sync removed.
+Verified on hardware 2026-11-07 from a fresh Windows PC: real sinowisp backup → step 3 "already has the patch", step 5 "Patch installed", OS mode bytes Mac=2 / iOS=3.
 
 ## Next / open
-1. Owner to verify on hardware: patch tab step 2 (real sinowisp backup) → step 3 should say "already has the patch".
-2. Confirm OS-mode byte values for Mac vs iOS on hardware (Log shows `keyboard OS mode byte`).
-3. 2.4G writing (turned off; wireless path uses the page byte as a packet counter — Mac over 2.4G needs separate work).
-4. Unknown flash page `0xC800`/`0xCA00` may hold unit-specific data (2.4G pairing) — reason not to ship one firmware image for everyone.
-5. Reddit post / promotion (owner planned).
+1. 2.4G writing (turned off; wireless path uses the page byte as a packet counter — Mac over 2.4G needs separate work).
+2. Unknown flash page `0xC800`/`0xCA00` may hold unit-specific data (2.4G pairing) — reason not to ship one firmware image for everyone.
+3. Reddit post / promotion (owner planned).
 
 ## Testing
 Simulator suite (Playwright + fake WebHID with flash pages, stock/patched modes, dongle, no-HID) is in the separate handoff bundle (`test/`), not in this repo. Run: serve repo with `python3 -m http.server 8765`, then `node suite.mjs`.
