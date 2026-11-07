@@ -12,6 +12,8 @@ Remap keys and control the lighting on the **LEOBOG Hi75C Pro** straight from th
 - Keyboard functions too: media, Bluetooth slots, OS mode, Win lock, lighting controls
 - Lighting: the 14 built-in effects with brightness, speed and color, plus Self-define (paint each key)
 - Profiles you can export and import as text
+- Key tester: press every key and watch it turn green on the board
+- Typing: try the keyboard on real texts (Egyptian and Saudi proverbs, Egyptian Arabic, wisdom, poetry, folk tales, English quotes) from [Taqtaqa](https://taqtaqa.com), with live speed and accuracy
 - Works over the USB cable. Writing over the 2.4G receiver is **temporarily turned off** while it's being fixed; you can still connect the receiver, but use the cable to write keymaps and lighting
 - English and Arabic interface
 
@@ -81,8 +83,11 @@ Editing the Mac tables over the 2.4G receiver isn't supported yet: the wireless 
 | `js/device.js` | WebHID protocol: cable + 2.4G, keymap, lighting, Mac-table write check |
 | `js/lighting.js` | Lighting config encode/decode |
 | `js/i18n.js` | All UI text, English and Arabic |
+| `js/typing.js` | Typing tab |
+| `js/texts.js` | Typing texts, generated from Taqtaqa by `tools/update-texts.mjs` |
 | `js/app.js` | UI: rendering, profiles, events |
 | `tools/hi75c_mac_patch.py` | One-time firmware patch for the Mac tables |
+| `tools/update-texts.mjs` | Refreshes `js/texts.js` from Taqtaqa: `node tools/update-texts.mjs path/to/taqtaqa/assets/data.js` |
 
 No build step: plain ES modules, served as-is by GitHub Pages.
 

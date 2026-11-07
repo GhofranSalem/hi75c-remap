@@ -9,7 +9,7 @@
 <title>Hi75C Pro — Key Remapper</title>
 <link rel="icon" href="data:,">
 <link rel="preload" href="fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=202611070320">
+<link rel="stylesheet" href="styles.css?v=202611070420">
 </head>
 <body>
 <header class="top">
@@ -35,7 +35,6 @@
       <div class="group">
         <button id="btnRead" type="button" data-i="readKeymap">Read from keyboard</button>
         <button id="btnMacPreset" type="button" data-i="macPreset" data-i-title="macPresetTip">Mac layout</button>
-        <button id="btnTest" type="button" data-i="testMode">Test mode</button>
       </div>
       <div class="group">
         <button class="quiet" id="btnResetKey" type="button" data-i="resetKey">Reset key</button>
@@ -43,68 +42,98 @@
         <button class="quiet danger" id="btnResetAll" type="button" data-i="resetAll">Reset all</button>
       </div>
     </div>
-    <p class="fine" id="testHint" data-i="testHint" hidden></p>
     <p class="fine" data-i="rescue"></p>
   </section>
 
-  <div class="work">
-    <section class="panel" aria-labelledby="hPick">
-      <h2 id="hPick" data-i="pickTitle">New function</h2>
-      <div class="sel-info" id="selInfo"></div>
-      <input type="search" id="search" data-i-ph="searchPh" aria-label="Search">
+  <section class="panel work" aria-label="Workspace">
+    <div class="seg tabs" id="workTabs" role="tablist">
+      <button class="tab" type="button" role="tab" data-t="functions" data-i="tabFunctions"></button>
+      <button class="tab" type="button" role="tab" data-t="lighting" data-i="lighting"></button>
+      <button class="tab" type="button" role="tab" data-t="profiles" data-i="profiles"></button>
+      <button class="tab" type="button" role="tab" data-t="tester" data-i="tabTester"></button>
+      <button class="tab" type="button" role="tab" data-t="typing" data-i="tabTyping"></button>
+      <button class="tab" type="button" role="tab" data-t="log">Log</button>
+    </div>
+
+    <div class="pane" data-p="functions">
+      <div class="fx-head">
+        <div class="sel-info" id="selInfo"></div>
+        <input type="search" id="search" data-i-ph="searchPh" aria-label="Search">
+      </div>
       <div class="cats" id="cats"></div>
       <div class="grid" id="grid"></div>
-    </section>
-
-    <section class="panel" aria-labelledby="hLight">
-      <h2 id="hLight" data-i="lighting">Lighting</h2>
-      <div class="form">
-        <label for="lEffect" data-i="effect"></label><select id="lEffect"></select>
-        <label class="lrow" for="lBright" data-i="brightness"></label><input class="lrow" type="range" id="lBright" min="0" max="4" step="1">
-        <label class="lrow" for="lSpeed" data-i="speed"></label><input class="lrow" type="range" id="lSpeed" min="0" max="4" step="1">
-        <span class="lrow" data-i="color"></span><div class="sw lrow" id="lColors" role="radiogroup"></div>
-      </div>
-      <div id="sdBox" hidden>
-        <p class="fine" data-i="sdHint"></p>
-        <div class="row">
-          <input type="color" id="sdColor" value="#00ff00" aria-label="Color">
-          <button id="sdPaint" type="button" data-i="paint"></button>
-          <button id="sdAll" type="button" data-i="fillAll"></button>
-          <button id="sdClear" type="button" data-i="clearAll"></button>
-        </div>
-      </div>
-      <div class="row">
-        <button id="lRead" type="button" data-i="readLight" disabled></button>
-        <button class="write" id="lApply" type="button" data-i="applyLight" disabled></button>
-      </div>
-
-    </section>
-
-    <div class="side">
-      <section class="panel" aria-labelledby="hProf">
-        <h2 id="hProf" data-i="profiles">Profiles</h2>
-        <select id="profileSel" aria-label="Profile"></select>
-        <div class="row">
-          <button id="btnNewProfile" type="button" data-i="newProfile"></button>
-          <button id="btnExport" type="button">Export</button>
-          <button id="btnImport" type="button">Import</button>
-        </div>
-        <p class="fine" data-i="profilesHint"></p>
-      </section>
-
-      <section class="panel">
-        <div class="seg small" id="bottomTabs" role="tablist">
-          <button class="tab active" type="button" data-t="changes" data-i="changes"></button>
-          <button class="tab" type="button" data-t="log">Log</button>
-        </div>
-        <pre data-p="changes" id="changes"></pre>
-        <div data-p="log" hidden>
-          <pre id="log"></pre>
-          <div class="row"><button id="btnClearLog" type="button" data-i="clear"></button><button id="btnCopyLog" type="button" data-i="copy"></button></div>
-        </div>
-      </section>
     </div>
-  </div>
+
+    <div class="pane" data-p="lighting" hidden>
+      <div class="cols">
+        <div>
+          <div class="form">
+            <label for="lEffect" data-i="effect"></label><select id="lEffect"></select>
+            <label class="lrow" for="lBright" data-i="brightness"></label><input class="lrow" type="range" id="lBright" min="0" max="4" step="1">
+            <label class="lrow" for="lSpeed" data-i="speed"></label><input class="lrow" type="range" id="lSpeed" min="0" max="4" step="1">
+            <span class="lrow" data-i="color"></span><div class="sw lrow" id="lColors" role="radiogroup"></div>
+          </div>
+          <div class="row">
+            <button id="lRead" type="button" data-i="readLight" disabled></button>
+            <button class="write" id="lApply" type="button" data-i="applyLight" disabled></button>
+          </div>
+        </div>
+        <div id="sdBox" hidden>
+          <p class="fine" data-i="sdHint"></p>
+          <div class="row">
+            <input type="color" id="sdColor" value="#00ff00" aria-label="Color">
+            <button id="sdPaint" type="button" data-i="paint"></button>
+            <button id="sdAll" type="button" data-i="fillAll"></button>
+            <button id="sdClear" type="button" data-i="clearAll"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pane" data-p="profiles" hidden>
+      <div class="cols">
+        <div>
+          <select id="profileSel" aria-label="Profile"></select>
+          <div class="row">
+            <button id="btnNewProfile" type="button" data-i="newProfile"></button>
+            <button id="btnExport" type="button">Export</button>
+            <button id="btnImport" type="button">Import</button>
+          </div>
+          <p class="fine" data-i="profilesHint"></p>
+        </div>
+        <div>
+          <h3 data-i="changes"></h3>
+          <pre id="changes"></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="pane" data-p="tester" hidden>
+      <div class="tester-head">
+        <p class="fine" data-i="testerHint"></p>
+        <span class="count" id="testCount"></span>
+        <button class="quiet" id="btnTestReset" type="button" data-i="testerReset"></button>
+      </div>
+      <div class="keylog" id="keyLog"></div>
+    </div>
+
+    <div class="pane" data-p="typing" hidden>
+      <div class="typing-head">
+        <select id="tSource" aria-label="Texts"></select>
+        <button id="tNext" type="button" data-i="nextText"></button>
+        <span class="tstats" id="tStats"></span>
+      </div>
+      <div class="ttext" id="tText" tabindex="0"></div>
+      <input id="tInput" class="tinput" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Type here">
+      <p class="fine"><span id="tSrc"></span> · <span data-i="typingCredit"></span> <a href="https://taqtaqa.com" target="_blank" rel="noopener">taqtaqa.com</a></p>
+      <p class="fine" id="tHint"></p>
+    </div>
+
+    <div class="pane" data-p="log" hidden>
+      <pre id="log"></pre>
+      <div class="row"><button id="btnClearLog" type="button" data-i="clear"></button><button id="btnCopyLog" type="button" data-i="copy"></button></div>
+    </div>
+  </section>
 </main>
 
 <footer class="foot"><p data-i="footer"></p></footer>
@@ -120,6 +149,6 @@
   </div>
 </div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="js/app.js?v=202611070320"></script>
+<script type="module" src="js/app.js?v=202611070420"></script>
 </body>
 </html>

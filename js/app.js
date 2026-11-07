@@ -3,6 +3,7 @@ import { CODES, BY_V, CATS, COMBO_KEYS, COMBO_PRESETS, LAYOUT, ACCENT, PHYS, FAC
   EFFECTS, PALETTE, SELF_DEFINE, labelOf, macName, comboSymbols, isSpecial, isAllowed, ALLOWED, hex8 } from "./keys.js";
 import { t, LANG, setLang, applyStatic } from "./i18n.js";
 import * as hid from "./device.js";
+import { createTyping, SOURCES } from "./typing.js";
 import { loadLight, saveLight, buildConfigWrite, effectFromConfig } from "./lighting.js";
 
 const $ = id => document.getElementById(id);
@@ -42,7 +43,7 @@ const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); }
 const prof = () => state.profiles[state.current];
 
 // ======================= view state =======================
-let mode = "win", layer = 0, selected = null, testMode = false, cat = "All", comboMods = 0x08, painting = false;
+let mode = "win", layer = 0, selected = null, cat = "All", comboMods = 0x08, painting = false, tab = "functions";
 const M = () => MODES.find(x => x.id === mode);
 const isMac = () => mode === "mac";
 const cur = () => prof()[mode][layer];
@@ -91,7 +92,8 @@ function renderKB() {
       const txt = empty ? "·" : (kind === "knob" && v === KNOB ? "●" : label(v));
       k.innerHTML = (changed || layer > 0 ? `<span class="orig">${esc(phys(idx))}</span>` : "") + `<span class="lbl">${esc(txt)}</span>`;
       if (paint) { const c = light.keys[idx]; if (c && (c[0] || c[1] || c[2])) { k.style.background = `rgb(${c})`; k.classList.add("lit"); } }
-      k.onclick = () => paint ? paintKey(idx) : select(idx);
+      k.classList.toggle("tested", tab === "tester" && tested.has(idx));
+      k.onclick = () => { if (paint) return paintKey(idx); select(idx); setTab("functions"); };
       rowEl.append(k);
     }
     kb.append(rowEl);
@@ -230,33 +232,77 @@ async function writeKeymap(m) {
   b.firstChild.textContent = t("write"); updateButtons();
 }
 
-// ======================= test mode =======================
+// ======================= workspace tabs =======================
+function setTab(name) {
+  tab = name;
+  document.querySelectorAll("#workTabs .tab").forEach(x => { const on = x.dataset.t === name; x.classList.toggle("active", on); x.setAttribute("aria-selected", on); });
+  document.querySelectorAll(".work [data-p]").forEach(p => { p.hidden = p.dataset.p !== name; });
+  if (name === "typing") { if (!typing.loaded) typing.next(); typing.focus(); }
+  renderKB(); renderTester();
+}
+document.querySelectorAll("#workTabs .tab").forEach(x => x.onclick = () => setTab(x.dataset.t));
+
+// ======================= key tester / pressed keys =======================
+// The browser reports a key by its HID usage (KeyboardEvent.code); light every key whose current Default sends it.
 const EVCODE = { Escape: 0x29, Backquote: 0x35, Minus: 0x2d, Equal: 0x2e, Backspace: 0x2a, Tab: 0x2b, BracketLeft: 0x2f, BracketRight: 0x30, Backslash: 0x31,
   CapsLock: 0x39, Semicolon: 0x33, Quote: 0x34, Enter: 0x28, Comma: 0x36, Period: 0x37, Slash: 0x38, Space: 0x2c, Delete: 0x4c, PageUp: 0x4b, PageDown: 0x4e,
-  Home: 0x4a, End: 0x4d, Insert: 0x49, ArrowUp: 0x52, ArrowDown: 0x51, ArrowLeft: 0x50, ArrowRight: 0x4f,
+  Home: 0x4a, End: 0x4d, Insert: 0x49, ArrowUp: 0x52, ArrowDown: 0x51, ArrowLeft: 0x50, ArrowRight: 0x4f, IntlBackslash: 0x64, ContextMenu: 0x65,
+  PrintScreen: 0x46, ScrollLock: 0x47, Pause: 0x48,
   ControlLeft: MOD(0xE0), ShiftLeft: MOD(0xE1), AltLeft: MOD(0xE2), MetaLeft: MOD(0xE3), ControlRight: MOD(0xE4), ShiftRight: MOD(0xE5), AltRight: MOD(0xE6), MetaRight: MOD(0xE7) };
 function evToV(code) {
   if (EVCODE[code] !== undefined) return EVCODE[code] >>> 0;
   let m;
   if ((m = code.match(/^Key([A-Z])$/))) return 4 + m[1].charCodeAt(0) - 65;
   if ((m = code.match(/^Digit(\d)$/))) return m[1] === "0" ? 0x27 : 0x1d + +m[1];
-  if ((m = code.match(/^F(\d+)$/))) { const n = +m[1]; return n <= 12 ? 0x39 + n : 0x68 + n - 13; }
+  if ((m = code.match(/^F(\d+)$/))) { const n = +m[1]; return n <= 24 ? (n <= 12 ? 0x39 + n : 0x68 + n - 13) : null; }
   return null;
 }
-$("btnTest").onclick = () => { testMode = !testMode; $("btnTest").textContent = t(testMode ? "testStop" : "testMode"); $("btnTest").classList.toggle("on", testMode); $("testHint").hidden = !testMode; };
-function testKey(ev, down) {
-  if (!testMode || /INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName)) return;
-  ev.preventDefault();
-  if (down && !ev.repeat) log(`key ${ev.code}`);
-  const v = evToV(ev.code); if (v === null) return;
-  document.querySelectorAll(".k").forEach(k => { if (valueAt(+k.dataset.idx, 0) === v) k.classList.toggle("pressed", down); });
+const keysSending = v => LAYOUT.flat().map(k => k[0]).filter(i => i !== null && valueAt(i, 0) === v);
+const detectable = v => (v >>> 24) === 0 && (((v >>> 16) & 255) === 0 ? (v >= 4 && v <= 0x73) : (v & 0xffff) === 0);
+const tested = new Set(), recent = [];
+function renderTester() {
+  if (tab !== "tester") return;
+  const all = LAYOUT.flat().map(k => k[0]).filter(i => i !== null && detectable(valueAt(i, 0)));
+  $("testCount").textContent = t("testerCount", { n: all.filter(i => tested.has(i)).length, total: all.length });
+  $("keyLog").replaceChildren(...(recent.length ? recent.map(r => el("span", { className: "kl", textContent: r })) : [el("span", { className: "kl-empty", textContent: t("testerEmpty") })]));
 }
-addEventListener("keydown", e => { if (e.key === "Escape" && $("modal").classList.contains("show")) return closeModal(); testKey(e, true); });
-addEventListener("keyup", e => testKey(e, false));
+$("btnTestReset").onclick = () => { tested.clear(); recent.length = 0; renderKB(); renderTester(); };
+function onKey(ev, down) {
+  if ($("modal").classList.contains("show")) { if (down && ev.key === "Escape") closeModal(); return; }
+  const inField = ev.target !== $("tInput") && /INPUT|TEXTAREA|SELECT/.test(ev.target?.tagName);
+  if (inField || (tab !== "tester" && tab !== "typing")) return;
+  if (tab === "tester") ev.preventDefault();                     // keep Space/Tab/arrows from scrolling or moving focus
+  const v = evToV(ev.code), idxs = v === null ? [] : keysSending(v);
+  document.querySelectorAll(".k").forEach(k => { if (idxs.includes(+k.dataset.idx)) k.classList.toggle("pressed", down); });
+  if (tab === "tester" && down && !ev.repeat) {
+    idxs.forEach(i => tested.add(i));
+    recent.unshift(ev.code + (ev.key && ev.key.length === 1 && ev.key !== " " ? ` ${ev.key}` : "")); recent.length = Math.min(recent.length, 24);
+    idxs.forEach(i => document.querySelector(`.k[data-idx="${i}"]`)?.classList.add("tested"));
+    renderTester();
+  }
+  if (tab === "typing" && down && ev.key === "Enter" && ev.target === $("tInput")) { ev.preventDefault(); typing.next(); }
+}
+addEventListener("keydown", e => onKey(e, true));
+addEventListener("keyup", e => onKey(e, false));
+addEventListener("blur", () => document.querySelectorAll(".k.pressed").forEach(k => k.classList.remove("pressed")));
+
+// ======================= typing (texts from Taqtaqa) =======================
+const SRC_LABEL = { masry: "srcMasry", saudi: "srcSaudi", kalam: "srcKalam", hekam: "srcHekam", sheer: "srcSheer", hawadit: "srcHawadit", en: "srcEn" };
+const typing = createTyping({
+  textEl: $("tText"), inputEl: $("tInput"), statsEl: $("tStats"), sourceEl: $("tSrc"),
+  labels: { get wpm() { return t("wpm"); }, get acc() { return t("accuracy"); }, get done() { return t("typingDone"); } },
+});
+function renderTypingControls() {
+  $("tSource").replaceChildren(...SOURCES.map(k => el("option", { value: k, textContent: t(SRC_LABEL[k]), selected: k === typing.source })));
+  $("tHint").textContent = t(typing.source === "en" ? "typingEnHint" : "typingArHint");
+}
+$("tSource").onchange = e => { typing.setSource(e.target.value); renderTypingControls(); typing.focus(); };
+$("tNext").onclick = () => { typing.next(); typing.focus(); };
+$("tText").onclick = () => typing.focus();
 
 // ======================= lighting =======================
 let light = loadLight(), lightCfg = null;
-const paintMode = () => light.effect === SELF_DEFINE && painting;
+const paintMode = () => light.effect === SELF_DEFINE && painting && tab === "lighting";
 const hexToRgb = h => [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16));
 function setLight(patch) { Object.assign(light, patch); saveLight(light); renderLight(); }
 function paintKey(idx) { light.keys[idx] = hexToRgb($("sdColor").value); saveLight(light); renderKB(); }
@@ -338,11 +384,6 @@ function updateButtons() {
 function log(s) { const l = $("log"); l.textContent += `[${new Date().toLocaleTimeString("en-GB")}] ${s}\n`; l.scrollTop = l.scrollHeight; }
 $("btnClearLog").onclick = () => { $("log").textContent = ""; };
 $("btnCopyLog").onclick = () => copy($("log").textContent);
-document.querySelectorAll("#bottomTabs .tab").forEach(tab => tab.onclick = () => {
-  document.querySelectorAll("#bottomTabs .tab").forEach(x => { x.classList.toggle("active", x === tab); x.setAttribute("aria-selected", x === tab); });
-  document.querySelectorAll("[data-p]").forEach(p => { p.hidden = p.dataset.p !== tab.dataset.t; });
-});
-
 let modalCb = null;
 // Text dialog (export/import/new profile). readonly → shows Copy instead of a callback.
 function textBox(title, body, text, cb, readonly = false) { openModal(title, body, { text, readonly, cb }); }
@@ -370,12 +411,11 @@ function refresh() {
 }
 function relabel() {
   $("btnLang").textContent = LANG === "en" ? "عربي" : "English";
-  $("btnTest").textContent = t(testMode ? "testStop" : "testMode");
-  renderStatus(); renderLight(); refresh();
+  renderStatus(); renderLight(); renderTypingControls(); refresh(); renderTester();
 }
 $("btnLang").onclick = () => { setLang(LANG === "en" ? "ar" : "en"); relabel(); };
 $("search").oninput = renderGrid;
-applyStatic(); renderCats(); relabel();
+applyStatic(); renderCats(); relabel(); setTab("functions");
 
 // Hooks for automated tests
 window.__test = { state, assign, select, setMode: m => { mode = m; refresh(); } };
