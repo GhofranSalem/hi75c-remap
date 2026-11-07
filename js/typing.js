@@ -1,25 +1,20 @@
 // Typing tab: type a real text (from Taqtaqa) to try the keyboard. Texts load on first use.
+// The text language follows the interface: Arabic → Egyptian Arabic, English → English quotes.
 // Matching is lenient like Taqtaqa: أ/إ/آ = ا, ة = ه, ى = ي, ؤ = و, ئ = ي.
 
 const NMAP = { "أ": "ا", "إ": "ا", "آ": "ا", "ٱ": "ا", "ة": "ه", "ى": "ي", "ؤ": "و", "ئ": "ي" };
 const same = (a, b) => a === b || (NMAP[a] || a) === (NMAP[b] || b);
 const isArabic = s => /[؀-ۿ]/.test(s);
-const STORE = "hi75c-typing-src";
 
-export const SOURCES = ["masry", "saudi", "kalam", "hekam", "sheer", "hawadit", "en"];
-
-export function createTyping({ textEl, inputEl, statsEl, sourceEl, labels, onDone }) {
-  let texts = null, target = "", typed = "", start = 0, keys = 0, okKeys = 0, done = false, last = -1;
-  let source = (() => { try { return localStorage.getItem(STORE); } catch { return null; } })();
-  if (!SOURCES.includes(source)) source = "masry";
+export function createTyping({ textEl, inputEl, statsEl, labels, onDone }) {
+  let texts = null, target = "", typed = "", start = 0, keys = 0, okKeys = 0, done = false, last = -1, lang = "en";
 
   async function load() { if (!texts) texts = (await import("./texts.js")).TEXTS; }
   async function next() {
     await load();
-    const list = texts[source];
+    const list = texts[lang];
     let i; do { i = Math.floor(Math.random() * list.length); } while (list.length > 1 && i === last);
-    last = i; target = list[i][0];
-    sourceEl.textContent = list[i][1] || "";
+    last = i; target = list[i];
     reset();
   }
   function reset() {
@@ -65,8 +60,7 @@ export function createTyping({ textEl, inputEl, statsEl, sourceEl, labels, onDon
   return {
     next, reset,
     focus: () => inputEl.focus({ preventScroll: true }),
-    get source() { return source; },
-    setSource(s) { if (!SOURCES.includes(s)) return; source = s; try { localStorage.setItem(STORE, s); } catch {} next(); },
+    setLang(l) { const n = l === "ar" ? "ar" : "en"; if (n === lang) return; lang = n; last = -1; if (target) next(); },
     get loaded() { return !!target; },
     stop: () => clearInterval(tick),
   };

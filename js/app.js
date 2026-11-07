@@ -3,7 +3,7 @@ import { CODES, BY_V, CATS, COMBO_KEYS, COMBO_PRESETS, LAYOUT, ACCENT, PHYS, FAC
   EFFECTS, PALETTE, SELF_DEFINE, labelOf, macName, comboSymbols, isSpecial, isAllowed, ALLOWED, hex8 } from "./keys.js";
 import { t, LANG, setLang, applyStatic } from "./i18n.js";
 import * as hid from "./device.js";
-import { createTyping, SOURCES } from "./typing.js";
+import { createTyping } from "./typing.js";
 import { loadLight, saveLight, buildConfigWrite, effectFromConfig } from "./lighting.js";
 
 const $ = id => document.getElementById(id);
@@ -287,16 +287,10 @@ addEventListener("keyup", e => onKey(e, false));
 addEventListener("blur", () => document.querySelectorAll(".k.pressed").forEach(k => k.classList.remove("pressed")));
 
 // ======================= typing (texts from Taqtaqa) =======================
-const SRC_LABEL = { masry: "srcMasry", saudi: "srcSaudi", kalam: "srcKalam", hekam: "srcHekam", sheer: "srcSheer", hawadit: "srcHawadit", en: "srcEn" };
 const typing = createTyping({
-  textEl: $("tText"), inputEl: $("tInput"), statsEl: $("tStats"), sourceEl: $("tSrc"),
+  textEl: $("tText"), inputEl: $("tInput"), statsEl: $("tStats"),
   labels: { get wpm() { return t("wpm"); }, get acc() { return t("accuracy"); }, get done() { return t("typingDone"); } },
 });
-function renderTypingControls() {
-  $("tSource").replaceChildren(...SOURCES.map(k => el("option", { value: k, textContent: t(SRC_LABEL[k]), selected: k === typing.source })));
-  $("tHint").textContent = t(typing.source === "en" ? "typingEnHint" : "typingArHint");
-}
-$("tSource").onchange = e => { typing.setSource(e.target.value); renderTypingControls(); typing.focus(); };
 $("tNext").onclick = () => { typing.next(); typing.focus(); };
 $("tText").onclick = () => typing.focus();
 
@@ -411,7 +405,7 @@ function refresh() {
 }
 function relabel() {
   $("btnLang").textContent = LANG === "en" ? "عربي" : "English";
-  renderStatus(); renderLight(); renderTypingControls(); refresh(); renderTester();
+  renderStatus(); renderLight(); typing.setLang(LANG); refresh(); renderTester();
 }
 $("btnLang").onclick = () => { setLang(LANG === "en" ? "ar" : "en"); relabel(); };
 $("search").oninput = renderGrid;

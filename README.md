@@ -13,7 +13,7 @@ Remap keys and control the lighting on the **LEOBOG Hi75C Pro** straight from th
 - Lighting: the 14 built-in effects with brightness, speed and color, plus Self-define (paint each key)
 - Profiles you can export and import as text
 - Key tester: press every key and watch it turn green on the board
-- Typing: try the keyboard on real texts (Egyptian and Saudi proverbs, Egyptian Arabic, wisdom, poetry, folk tales, English quotes) from [Taqtaqa](https://taqtaqa.com), with live speed and accuracy
+- Typing: try the keyboard on real texts from [Taqtaqa](https://taqtaqa.com) — English quotes in the English interface, Egyptian Arabic in the Arabic one — with live speed and accuracy
 - Works over the USB cable. Writing over the 2.4G receiver is **temporarily turned off** while it's being fixed; you can still connect the receiver, but use the cable to write keymaps and lighting
 - English and Arabic interface
 

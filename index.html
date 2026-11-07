@@ -9,7 +9,7 @@
 <title>Hi75C Pro — Key Remapper</title>
 <link rel="icon" href="data:,">
 <link rel="preload" href="fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=202611070420">
+<link rel="stylesheet" href="styles.css?v=202611070440">
 </head>
 <body>
 <header class="top">
@@ -119,14 +119,12 @@
 
     <div class="pane" data-p="typing" hidden>
       <div class="typing-head">
-        <select id="tSource" aria-label="Texts"></select>
         <button id="tNext" type="button" data-i="nextText"></button>
         <span class="tstats" id="tStats"></span>
       </div>
       <div class="ttext" id="tText" tabindex="0"></div>
       <input id="tInput" class="tinput" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Type here">
-      <p class="fine"><span id="tSrc"></span> · <span data-i="typingCredit"></span> <a href="https://taqtaqa.com" target="_blank" rel="noopener">taqtaqa.com</a></p>
-      <p class="fine" id="tHint"></p>
+      <p class="fine"><span data-i="typingHint"></span> <span data-i="typingCredit"></span> <a href="https://taqtaqa.com" target="_blank" rel="noopener">taqtaqa.com</a></p>
     </div>
 
     <div class="pane" data-p="log" hidden>
@@ -149,6 +147,6 @@
   </div>
 </div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script type="module" src="js/app.js?v=202611070420"></script>
+<script type="module" src="js/app.js?v=202611070440"></script>
 </body>
 </html>
