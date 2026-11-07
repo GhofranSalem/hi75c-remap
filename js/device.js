@@ -199,30 +199,33 @@ async function wlWriteBlock(cmd, chunk, bytes) {
 }
 
 // Ask the keyboard for a block (cmd 41 keymap chunk, 44 config) and collect the 14-byte reply packets.
-// Packets lost on the radio are asked for again; ones already received are kept.
+// The keyboard sends as many packets as the reply's count byte says (firmware stops when seq reaches it):
+// 36 for a keymap (504 of the 512 bytes — entries 0-125), 10 for the config. Lost packets are asked for again.
 async function wlReadBlock(cmd, chunk, size) {
-  const need = Math.ceil(size / 14), got = new Map();
+  let need = 0; const got = new Map();
   const w = r => {
     const len = r[4] & 15;
-    if (r[1] !== cmd || !len || (r[4] >> 4) !== chunk || r[3] >= need || got.has(r[3])) return;
-    got.set(r[3], r.slice(5, 5 + len));
+    if (r[1] !== cmd || !len || !r[2] || (r[4] >> 4) !== chunk || got.has(r[3])) return;
+    need = Math.min(r[2], Math.ceil(size / 14)); if (r[3] < need) got.set(r[3], r.slice(5, 5 + len));
   };
+  const done = () => need && [...Array(need).keys()].every(i => got.has(i));
   rxWaiters.push(w);
   try {
-    for (let a = 0; a < 8 && got.size < need; a++) {
-      if (a) log(`2.4G read ${h2(cmd)}: ${got.size}/${need} packets, asking again`);
+    for (let a = 0; a < 8 && !done(); a++) {
+      if (a) log(`2.4G read ${h2(cmd)}: ${got.size}/${need || "?"} packets, asking again`);
       await dev.cfg.sendReport(0x13, wlPacket(cmd, 1, 0, chunk << 4, null).slice(1));
-      for (let t = 0; t < 40 && got.size < need; t++) await sleep(20);
+      for (let t = 0; t < 40 && !done(); t++) await sleep(20);
     }
   } finally { rxWaiters = rxWaiters.filter(x => x !== w); }
-  if (got.size < need) throw new Error(`the keyboard didn't answer over 2.4G (${got.size}/${need} packets)`);
-  const out = new Uint8Array(need * 14); let o = 0;
-  for (let i = 0; i < need; i++) { out.set(got.get(i), o); o += got.get(i).length; }
-  return out.slice(0, size);
+  if (!done()) throw new Error(`the keyboard didn't answer over 2.4G (${got.size}/${need || "?"} packets)`);
+  const out = new Uint8Array(size); let o = 0;
+  for (let i = 0; i < need && o < size; i++) { const part = got.get(i).slice(0, size - o); out.set(part, o); o += part.length; }
+  return out.slice(0, o);
 }
 async function wlReadConfig() {
   const cfg = new Uint8Array(136); cfg.set([0x06, 0x84, 0, 0, 0x01, 0, 0x80, 0x00]);
-  cfg.set(await wlReadBlock(0x44, 0, 128), 8);
+  const b = await wlReadBlock(0x44, 0, 128); if (b.length < 128) throw new Error("short config over 2.4G");
+  cfg.set(b, 8);
   return cfg;
 }
 
@@ -231,9 +234,9 @@ async function wlReadConfig() {
 async function wlWriteKeymap(chunk, data) {
   for (let a = 1; a <= 3; a++) {
     await wlWriteBlock(0x01, chunk, data); await sleep(150);
-    const back = await wlReadBlock(0x41, chunk, 512);
-    if (sameBytes(back, data)) { log(`2.4G keymap layer ${chunk} written and verified${a > 1 ? ` (try ${a})` : ""}`); return; }
-    log(`2.4G keymap layer ${chunk}: ${data.reduce((n, x, i) => n + (x !== back[i]), 0)} byte(s) differ after writing, sending again`);
+    const back = await wlReadBlock(0x41, chunk, 512);             // 504 bytes come back over 2.4G
+    if (sameBytes(back, data.slice(0, back.length))) { log(`2.4G keymap layer ${chunk} written and verified${a > 1 ? ` (try ${a})` : ""}`); return; }
+    log(`2.4G keymap layer ${chunk}: ${back.reduce((n, x, i) => n + (x !== data[i]), 0)} byte(s) differ after writing, sending again`);
   }
   throw new Error(`keymap layer ${chunk} did not verify over 2.4G — use the USB cable`);
 }
