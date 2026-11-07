@@ -41,7 +41,7 @@ Done and live: Win/Mac tabs, patch detection memory (`hi75c-mac-patch` = yes/no)
 Verified on hardware 2026-11-07 from a fresh Windows PC: real sinowisp backup → step 3 "already has the patch", step 5 "Patch installed", OS mode bytes Mac=2 / iOS=3.
 
 ## Next / open
-1. 2.4G writing back on (2026-11-07, Windows/Android layers + lighting, verified by read-back) — awaiting owner hardware test. Firmware: wireless keymap write 0x0884, read 0x3DA0, header parser 0x07D5 (count-1→0x02E2, seq→0x0D10, chunk nibble→0x0389). Mac over 2.4G would need patch C (chunk 4/5 → CE/D2 in 0x0884, 0x095F, 0x3DA0).
+1. 2.4G writing back on and verified on hardware 2026-11-07 (Windows/Android layers + lighting, read-back verify; keymap read over 2.4G returns 36 packets = 504 B). Firmware: wireless keymap write 0x0884, read 0x3DA0, header parser 0x07D5 (count-1→0x02E2, seq→0x0D10, chunk nibble→0x0389). Mac over 2.4G would need patch C (chunk 4/5 → CE/D2 in 0x0884, 0x095F, 0x3DA0).
 2. Unknown flash page `0xC800`/`0xCA00` may hold unit-specific data (2.4G pairing) — reason not to ship one firmware image for everyone.
 3. Reddit post / promotion (owner planned).
 
